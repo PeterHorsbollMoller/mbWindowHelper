@@ -1,0 +1,2 @@
+Declare Method GetResItemStr Class "WindowHelper.Controller" Lib "WindowHelper.dll" (ByVal sName As String) As String
+Declare Method GetResItemStrReplace Class "WindowHelper.Controller" Lib "WindowHelper.dll" Alias GetResItemStr (ByVal sName As String, ByVal sReplaceList As String) As String

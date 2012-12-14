@@ -1,0 +1,57 @@
+'Requires MapInfo Pro 10.0
+'********************************************************
+'17-03-2011 10:09:55	Fixed some issues with the same variable used by more properties
+'23-04-2012 10:08:20	Added property set Sub PRGISetApplicationDevelopedFor(...) / PRGIGetApplicationDevelopedFor() As String
+'********************************************************
+
+'When using this module, make sure to set these values in your main module
+'
+'Define xProgram 		"Nodes Displayer"
+'Define xVersion 		"1.0.0"
+'Define xYear		"2011"
+'
+'	Call PRGISetApplicationName(xProgram)
+'	Call PRGISetApplicationVersion(xVersion)
+'	Call PRGISetApplicationCopyrightYear(xYear)
+'	Call PRGISetApplicationDevelopedBy("Peter Horsbøll Møller")
+'********************************************************
+'Set and get the Name of the Application, deafult is "unknown" or name of MBX if running on MI Pro 10.0 or newer
+Declare Sub PRGISetApplicationName(	ByVal sName As String)
+Declare Function PRGIGetApplicationName() As String
+'Set and get the Version of the Application, default is ""
+Declare Sub PRGISetApplicationVersion(ByVal sVersion As String)
+Declare Function PRGIGetApplicationVersion() As String
+'Set and get the Copyright Year of the Application, default is Year(CurDate())
+Declare Sub PRGISetApplicationCopyrightYear(ByVal sYear As String)
+Declare Function PRGIGetApplicationCopyrightYear() As String
+'Set and get the Copyright Company of the Application, default is "Pitney Bowes Software"
+Declare Sub PRGISetCopyrightCompany(ByVal sName As String)
+Declare Function PRGIGetCopyrightCompany() As String
+
+'Set and get the Name of the developer of the Application, default is "Pitney Bowes Software"
+Declare Sub PRGISetApplicationDevelopedBy(ByVal sName As String)
+Declare Function PRGIGetApplicationDevelopedBy() As String
+'Set and get the Name of who the Application was developed for, default is ""
+Declare Sub PRGISetApplicationDevelopedFor(ByVal sName As String)
+Declare Function PRGIGetApplicationDevelopedFor() As String
+
+'Set and get the Web Page Name, default is "pbinsight.com"
+Declare Sub PRGISetWebPageName(ByVal sName As String)
+Declare Function PRGIGetWebPageName() As String
+'Set and get the URL to the Web Page, default is "www.pbinsight.com"
+Declare Sub PRGISetWebPageURL(ByVal sURL As String)
+Declare Function PRGIGetWebPageURL() As String
+
+'Set and get the help file for the application, can be PDF, DOC, TXT or any file Windows can "run"
+Declare Sub PRGISetApplicationHelpFile(ByVal sHelpFile As String)
+Declare Function PRGIGetApplicationHelpFile() As String
+
+'Set and get variables for using multiple languages. If these are not set the language popup shows value 'default'
+Declare Sub PRGISetApplicationLanguages(sLanguages() As String)
+Declare Sub PRGISetApplicationLanguage(iLanguage As Integer)
+Declare Function PRGIGetApplicationLanguage() As Integer
+
+'Show the About box using the Information given above
+Declare Sub PRGIAboutbox
+'Launches the help file, if any specified
+Declare Sub PRGILaunchHelpFile

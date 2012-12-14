@@ -1,0 +1,36 @@
+'**************************************************************
+' H I S T O R Y
+'**************************************************************
+'	13-11-2012 10:05:17	- Added:
+'						- OBJFindNode(...) As Integer
+'						- OBJFindSegmentAndNode(...) As Logical
+'						- OBJRemoveDuplicateNodes(...) As Object
+'						- Declare Function OBJReverse(...) As Object
+'						- Declare Function OBJReversePolyline(...) As Object
+'						- Declare Function OBJReverseLine(...) As Object
+'**************************************************************
+'Requires MapInfo Pro 4.0
+
+Declare Function OBJIsInitialized(ByVal oObj As Object) As Logical
+
+Declare Function OBJFindNode(	  ByVal oObj As Object		'The object (polyline or polygon) to search in, only the first segment of the object will be searched
+						, ByVal oNode As Object		'Node position to look for
+						, ByVal fTolerance As Float	'Search tolerance, in meters, distance is measured using Cartesian calculation
+						) As Integer				'Returns the first matching node number, or 0 if no found
+Declare Function OBJFindSegmentAndNode(	  ByVal oObj As Object		'The object (polyline or polygon) to search in
+								, ByVal oNode As Object		'Node position to look for
+								, ByVal fTolerance As Float	'Search tolerance, in meters, distance is measured using Cartesian calculation
+								, nSegmentFound As Integer	'The Segment number where the node was found
+								, nNodeFound As Integer		'The matching node number
+								) As Logical				'Returns TRUE if a matching node was found, otherwise FALSE
+
+Declare Function OBJRemoveDuplicateNodes( ByVal oObj As Object		'The object (polyline or polygon) to remove duplicate nodes in
+								, ByVal fTolerance As Float	'The tolerance defining whether two nodes are "the same", distance is measured using Cartesian calculation
+								) As Object				'Returns the object with duplicate nodes removed
+
+Declare Function OBJReverse(	  ByVal oObj As Object			'The object which node order to reverse, only line and polyline are supported
+						) As Object					'Returns the object with the nodes in reversed order
+Declare Function OBJReversePolyline(  ByVal oPLine As Object	'The polyline which node order to reverse, only is supported
+							) As Object				'Returns the polyline with the nodes in reversed order
+Declare Function OBJReverseLine(	  ByVal oLine As Object		'The line which node order to reverse, only line is supported
+							) As Object				'Returns the line with the nodes in reversed order

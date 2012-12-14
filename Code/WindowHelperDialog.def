@@ -1,0 +1,5 @@
+Declare Sub WHDInitialize
+Declare Sub WHDWinClosedHandler(ByVal nWID As Integer)
+Declare Sub WHDWinFocusChangedHandler(ByVal nWID As Integer)
+Declare Sub WHDWinChangedHandler(ByVal nWID As Integer)
+Declare Sub WHDEndHandler

@@ -1,0 +1,7 @@
+Define CInternetSession      Integer
+Define CHttpConnection       Integer
+Define CHttpFile             Integer
+Define CString               Integer
+Define INTERNET_PORT         SmallInt
+Define CFtpConnection        Integer
+Define CFtpFileFind          Integer

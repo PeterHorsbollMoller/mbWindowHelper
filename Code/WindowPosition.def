@@ -1,0 +1,10 @@
+Declare Sub WINPStoreWindowPositionMenu
+
+Declare Sub WINPStoreWindowPosition
+Declare Sub WINPRestoreWindowPosition
+Declare Sub WINPAutoStoreWindowPosition
+Declare Sub WINPAutoRestoreWindowPosition
+
+Declare Sub WINPReadIniFile(ByVal sFile As String)
+Declare Sub WINPWriteIniFile(ByVal sFile As String)
+Declare Sub WINP_EndHandler

@@ -1,0 +1,5 @@
+Define MIXmlDocument         Integer
+Define MIXmlNode             Integer
+Define MIXmlNodeList         Integer
+Define MIXmlNamedNodeMap     Integer
+Define MIXMLSchemaCollection Integer

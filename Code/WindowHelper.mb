@@ -1,0 +1,647 @@
+'*******************************************************************************
+'** 	Program:	WindowHelper
+'** 	Modul:	WindowHelper.mb
+'**
+'*******************************************************************************
+
+'-------------------------------------
+Include "Library\MapBasic.def"
+Include "Library\Icons.def"
+Include "Library\Menu.def"
+'**default constants...
+Include "Library\Defaults.def"
+
+'-------------------------------------
+Include "Library\DEBUGLib.def"
+Include "Library\ERRORLib.def"
+Include "Library\TABLELib.def"
+
+Include "WindowHelper.def"
+Include "Resources.def"
+
+Define CTRL_LST_WINDOW_NAMES	100
+
+'Declare Sub WINHHandlerWindowName_Clicked
+'Declare Sub WINHHandlerOK_Clicked
+
+'Declare Sub WINHLockWindow(ByVal nWID As Integer)
+'Declare Sub WINHUnlockWindow(ByVal nWID As Integer)
+'Declare Sub WINHStoreWindow(ByVal nWID As Integer)
+
+'Dim	marrWinStatements(), marrWinNames(), marrWorkspaces() As String,
+'	marrNumLayers(), mnPreviousWID As Integer,
+'	mbAutoLockWindow As Logical
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHWinClosedHandler(ByVal nWID As Integer)
+'
+'OnError GoTo ErrorOccured
+'
+'	Call WINHStoreWindow(nWID)
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHWinClosedHandler")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHWinFocusChangedHandler(ByVal nWID As Integer)
+'
+'OnError GoTo ErrorOccured
+'
+'	If mbAutoLockWindow Then
+''		Call DEBUGPrint("WINHWinFocusChangedHandler: " & nWID)
+'		If WindowInfo(nWID, WIN_INFO_TYPE) IN (WIN_BUTTONPAD, WIN_HELP, WIN_INFO, WIN_LEGEND, WIN_MESSAGE, WIN_RULER, WIN_STATISTICS, WIN_TOOLBAR, WIN_MAPBASIC) Then
+'			'**Make sure we don't lock any of the special windows
+''			Call DEBUGPrint("   Special windows do not get locked!")
+'		Else
+''			Call DEBUGPrint("   Ordinary windows (" & nWID & ", " & WindowInfo(nWID, WIN_INFO_TYPE) & ") get locked!")
+'			Call WINHLockWindow(nWID)
+'		End If
+'	End If
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHWinFocusChangedHandler")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHAutoLockWindowSwitchMenu
+'
+'OnError GoTo ErrorOccured
+'
+'	Call WINHSetAutolockWindows(NOT mbAutoLockWindow)
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHAutoLockWindowSwitchMenu")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHLockWindowMenu
+'
+'OnError GoTo ErrorOccured
+'
+'	If NumWindows() = 0 Then
+'		Exit Sub
+'	End If
+'
+'	Call WINHLockWindow(FrontWindow())
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHLockWindowMenu")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHUnlockWindowMenu
+'
+'OnError GoTo ErrorOccured
+'
+'	If NumWindows() = 0 Then
+'		Exit Sub
+'	End If
+'
+'	Call WINHUnlockWindow(FrontWindow())
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHUnlockWindowMenu")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINHCloneWindowMenu
+'
+OnError GoTo ErrorOccured
+'
+	If NumWindows() = 0 Then
+		Exit Sub
+	End If
+
+	Run Command WindowInfo(FrontWindow(), WIN_INFO_CLONEWINDOW)
+
+	Exit Sub
+''-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINHCloneWindowMenu")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHCloseWindowMenu
+'
+'OnError GoTo ErrorOccured
+'
+'	If NumWindows() = 0 Then
+'		Exit Sub
+'	End If
+'
+'	If NOT Ask(GetResItemStrReplace("QUEST_CLOSE_WINDOW", WindowInfo(FrontWindow(), WIN_INFO_NAME)), GetResItemStr("STR_NO"), GetResItemStr("STR_YES")) Then
+'		'**Closing the window automatically calls the WinClosedHandler and so stores the Window Statement
+'		Close Window FrontWindow()
+'	End If
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHCloseWindowMenu")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHRestoreWindowMenu
+'
+'Dim	nWinItem As Integer
+'
+'OnError GoTo ErrorOccured
+'
+'	If Ubound(marrWinStatements) = 0 Then
+'		Note GetResItemStr("ERR_NO_WINDOWS_TO_RESTORE")
+'		Exit Sub
+'	End If
+'
+'	Dialog
+'		Title GetResItemStr("DLG_TTL_RESTORE_WINDOWS")
+'
+'		Control StaticText	Position 5,5
+'			Title GetResItemStr("DLG_TXT_PICK_WINDOW_TO_RESTORE")
+'
+'		Control ListBox		Position 5,15	Width 400	Height 100	ID CTRL_LST_WINDOW_NAMES
+'			Title From Variable marrWinNames
+'			Calling WINHHandlerWindowName_Clicked
+'
+'		Control OKButton
+'			Title GetResItemStr("STR_RESTORE")
+'			Calling WINHHandlerOK_Clicked
+'		Control CancelButton
+'
+'	If not CommandInfo(CMD_INFO_DLG_OK) Then
+'		Exit Function
+'	End If
+'
+'	Exit Sub
+'-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHRestoreWindowMenu")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHHandlerWindowName_Clicked
+'
+'OnError GoTo ErrorOccured
+'
+'	If CommandInfo(CMD_INFO_DLG_DBL) Then
+'		Call WINHHandlerOK_Clicked
+'	End If
+'
+'	Exit Sub
+'-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHHandlerWindowName_Clicked")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHHandlerOK_Clicked
+'
+'Dim	nItem As Integer
+'
+'OnError GoTo ErrorOccured
+'
+'	Dialog Preserve
+'
+'	nItem = ReadControlValue(CTRL_LST_WINDOW_NAMES)
+'	If nItem = 0 Then
+''		Dialog Preserve
+'		Exit Sub
+'	End If
+'
+''	Call DEBUGPrint("Len of Windows statement: " & Len(marrWinStatements(nItem)))
+''	Call DEBUGPrint("Windows statement: " & marrWinStatements(nItem	))
+'	If NOT (Len(marrWinStatements(nItem)) Between 1 AND 32000) Then
+''		If Ask("This window might have been to complex to cature in a string. Do you want to run the workspace holding all windows open, when this window was closed?", "Yes", "No") Then
+''			Run Command "Run Application " & eye & marrWorkspaces(nItem) & eye
+''		Else
+'			Run Command marrWinStatements(nItem)
+''			If WindowInfo(FrontWindow(), WIN_INFO_TYPE) = WIN_MAPPER Then
+''				Call DEBUGPrint("Comparing number of layers: Before: " & marrNumLayers(nItem) & " New window: " & MapperInfo(FrontWindow(), MAPPER_INFO_LAYERS))
+''			End If
+''		End If
+'	Else
+'		Run Command marrWinStatements(nItem)
+''		If WindowInfo(FrontWindow(), WIN_INFO_TYPE) = WIN_MAPPER Then
+''			Call DEBUGPrint("Comparing number of layers: Before: " & marrNumLayers(nItem) & " New window: " & MapperInfo(FrontWindow(), MAPPER_INFO_LAYERS))
+''		End If
+'	End If
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHHandlerOK_Clicked")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHLockWindow(ByVal nWID As Integer)
+'
+'OnError GoTo ErrorOccured
+'
+'	Set Window nWID SysMenuClose Off
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHLockWindow")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHUnlockWindow(ByVal nWID As Integer)
+'
+'OnError GoTo ErrorOccured
+'
+'	Set Window nWID SysMenuClose On
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHUnlockWindow")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+'Sub WINHStoreWindow(ByVal nWID As Integer)
+'
+'Dim	nCount As Integer,
+'	sTime, sFile, sType As String
+'
+'OnError GoTo ErrorOccured
+'
+'	Do Case WindowInfo(nWID, WIN_INFO_TYPE)
+'		Case WIN_MAPPER
+'			sType	= "Mapper"
+'		Case WIN_BROWSER
+'			sType	= "Browser"
+'		Case WIN_LAYOUT
+'			sType	= "Layout"
+'		Case WIN_GRAPH
+'			sType	= "Graph"
+'		Case WIN_3DMAP
+'			sType	= "3DMap"
+'		Case WIN_MAPBASIC
+'			sType	= "MapBasic"
+'		Case WIN_CART_LEGEND
+'			sType	= "Cartographic Legend"
+'			Call DEBUGPrint("Legends Map ID: " & LegendInfo(nWID, LEGEND_INFO_MAP_ID))
+'			If LegendInfo(nWID, LEGEND_INFO_MAP_ID) = mnPreviousWID Then
+'				'**Sorry but this type can not be stored
+'				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored because the map has just been closed")
+'				Exit Sub
+'			End If
+'		Case WIN_LEGEND_DESIGNER
+'			sType	= "Legend Designer"
+'			Call DEBUGPrint("Legend Designers Map ID: " & LegendInfo(nWID, LEGEND_INFO_MAP_ID))
+'			If LegendInfo(nWID, LEGEND_INFO_MAP_ID) = mnPreviousWID Then
+'				'**Sorry but this type can not be stored
+'				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored because the map has just been closed")
+'				Exit Sub
+'			End If
+'		Case WIN_BUTTONPAD
+'			sType	= "Buttonpad"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_TOOLBAR
+'			sType	= "Toolbar"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_ADORNMENT
+'			sType	= "Adornment"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_HELP
+'			sType	= "Help"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_MESSAGE
+'			sType	= "Message"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_RULER
+'			sType	= "Ruler"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_INFO
+'			sType	= "Info"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_LEGEND
+'			sType	= "Legend"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_STATISTICS
+'			sType	= "Statistics"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'		Case WIN_MAPINFO
+'			sType	= "MapInfo"
+'			'**Sorry but this type will not be stored
+'			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+'			Exit Sub
+'	End Case
+'
+'	nCount = Ubound(marrWinStatements) + 1
+'	Redim marrWinStatements(nCount)
+'	Redim marrWinNames(nCount)
+'	Redim marrWorkspaces(nCount)
+'	Redim marrNumLayers(nCount)
+'
+'	Call DEBUGPrint("Closing window (" & sType & "): " & nWID & " " & WindowInfo(nWID, WIN_INFO_NAME))
+'	sTime					= Time(24)
+''	sFile					= PathToDirectory$(TempFileName$("")) & "WindowHelper " & sType & " " & Left$(sTime, 2) & "_" & Mid$(sTime, 4, 2) & "_" & Right$(sTime, 2) & ".txt"
+''	Call DEBUGPrint("Writing window settings to " & sFile)
+'
+''	Open File sFile
+''		For Output
+''		As #357
+''		CharSet SystemInfo(SYS_INFO_CHARSET)
+'
+''	Print #357, WindowInfo(nWID, WIN_INFO_CLONEWINDOW)
+'
+''	Close File #357
+''	Call DEBUGPrint("File has been closed")
+'
+'	If WindowInfo(nWID, WIN_INFO_TYPE) = WIN_MAPPER Then
+'		marrNumLayers(nCount) = MapperInfo(nWID, MAPPER_INFO_LAYERS)
+'	Else
+'		marrNumLayers(nCount) = -1
+'	End If
+'
+''	marrWorkspaces(nCount)		= PathToDirectory$(TempFileName$("")) & "WindowHelper " & sType & " " & Left$(sTime, 2) & "_" & Mid$(sTime, 4, 2) & "_" & Right$(sTime, 2) & ".wor"
+''	Call DEBUGPrint("Writing workspace for window to " & marrWorkspaces(nCount))
+''	Run Command "Save Workspace As " & eye & marrWorkspaces(nCount) & eye
+'
+'	Call DEBUGPrint("Saving settings for window " & WindowInfo(nWID, WIN_INFO_NAME) & " to array")
+'	marrWinNames(nCount)		= sTime & " " & sType & ": " & WindowInfo(nWID, WIN_INFO_NAME)
+'	marrWinStatements(nCount)	= WindowInfo(nWID, WIN_INFO_CLONEWINDOW)
+'	Call DEBUGPrint("Comparing statements: Array: " & Len(marrWinStatements(nCount)) & " chars. WIN_INFO_CLONE: " & Len(WindowInfo(nWID, WIN_INFO_CLONEWINDOW)) & " chars.")
+'
+'	mnPreviousWID = nWID
+'
+'	Alter Menu Item WINHRestoreWindowMenu Enable
+'	Alter Button WINHRestoreWindowMenu Enable
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHStoreWindow")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'	:
+'Return value:
+'
+'**********************************************************************************************''
+'Function WINHAutolockWindows() As Logical
+'
+'OnError GoTo ErrorOccured
+'
+'	WINHAutolockWindows = mbAutoLockWindow
+'	Exit Function
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHAutolockWindows")
+'	Call ERRShow()
+'
+'End Function
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'	:
+'
+'**********************************************************************************************''
+'Sub WINHSetAutolockWindows(ByVal bAutolock As Logical)
+'
+'Dim	i As Integer
+'
+'OnError GoTo ErrorOccured
+'
+'	If NOT bAutolock Then
+''		Alter Button WINHAutoLockWindowSwitchMenu Uncheck
+''		Alter Menu Item WINHAutoLockWindowSwitchMenu Uncheck
+'		mbAutoLockWindow = FALSE
+'	Else
+'		For i = 1 To NumWindows()
+'			Call WINHLockWindow(WindowID(i))
+'		Next
+'
+''		Alter Button WINHAutoLockWindowSwitchMenu Check
+''		Alter Menu Item WINHAutoLockWindowSwitchMenu Check
+'		mbAutoLockWindow = TRUE
+'	End If
+'
+'	Exit Sub
+''-------------------------
+'ErrorOccured:
+'	Call ERRCreate(Err(), Error$(), "WINHSetAutolockWindows")
+'	Call ERRShow()
+'
+'End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINHZoomEntireAllLayers
+
+Dim	nMID As Integer
+
+	If LayerControlInfo(LC_INFO_SEL_COUNT) <> 1 Then
+		Note GetResItemStr("ERR_SELECT_ONE_MAP_IN_LAYER_CONTROL")		'Note "Please select one map in the Layer Control!"
+		Exit Sub
+	End If
+
+	If LayerControlSelectionInfo (1, LC_SEL_INFO_TYPE) <> LC_SEL_INFO_TYPE_MAP Then
+		Note GetResItemStr("ERR_SELECT_ONE_MAP_IN_LAYER_CONTROL")		'Note "Please select one map in the Layer Control!"
+		Exit Sub
+	End If
+
+	nMID		= LayerControlSelectionInfo(1, LC_SEL_INFO_MAPWIN_ID)
+
+	Set Map
+		Window nMID
+		Zoom Entire
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINHZoomEntireAllLayers")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINHSetDefaultViewAllLayers
+
+Dim	nMID, nLayer, nNumLayers As Integer
+
+	If LayerControlInfo(LC_INFO_SEL_COUNT) <> 1 Then
+		Note GetResItemStr("ERR_SELECT_ONE_MAP_IN_LAYER_CONTROL")		'Note "Please select one map in the Layer Control!"
+		Exit Sub
+	End If
+
+	If LayerControlSelectionInfo (1, LC_SEL_INFO_TYPE) <> LC_SEL_INFO_TYPE_MAP Then
+		Note GetResItemStr("ERR_SELECT_ONE_MAP_IN_LAYER_CONTROL")		'Note "Please select one map in the Layer Control!"
+		Exit Sub
+	End If
+
+	nMID		= LayerControlSelectionInfo(1, LC_SEL_INFO_MAPWIN_ID)
+
+	nNumLayers	= MapperInfo(nMID, MAPPER_INFO_LAYERS)
+	For nLayer = 1 To nNumLayers
+		If NOT LayerInfo(nMID, nLayer, LAYER_INFO_TYPE) IN (LAYER_INFO_TYPE_COSMETIC, LAYER_INFO_TYPE_GRID, LAYER_INFO_TYPE_IMAGE, LAYER_INFO_TYPE_THEMATIC, LAYER_INFO_TYPE_TILESERVER, LAYER_INFO_TYPE_WMS) Then
+			Set Map
+				Window nMID
+				Layer nLayer
+					Default Zoom
+		End If
+	Next
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINHSetDefaultViewAllLayers")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINHSetDefaultViewSingleLayer
+
+Dim	nMID, nLayer, nNumLayers As Integer
+
+	If LayerControlInfo(LC_INFO_SEL_COUNT) <> 1 Then
+		Note GetResItemStr("ERR_SELECT_ONE_LAYER_IN_LAYER_CONTROL")
+		Exit Sub
+	End If
+
+	If LayerControlSelectionInfo (1, LC_SEL_INFO_TYPE) <> LC_SEL_INFO_TYPE_LAYER Then
+		Note GetResItemStr("ERR_SELECT_ONE_LAYER_IN_LAYER_CONTROL")
+		Exit Sub
+	End If
+
+	nMID		= LayerControlSelectionInfo(1, LC_SEL_INFO_MAPWIN_ID)
+	nLayer	= LayerControlSelectionInfo(1, LC_SEL_INFO_LAYER_ID)
+
+	If NOT LayerInfo(nMID, nLayer, LAYER_INFO_TYPE) IN (LAYER_INFO_TYPE_COSMETIC, LAYER_INFO_TYPE_GRID, LAYER_INFO_TYPE_IMAGE, LAYER_INFO_TYPE_THEMATIC, LAYER_INFO_TYPE_TILESERVER, LAYER_INFO_TYPE_WMS) Then
+		Set Map
+			Window nMID
+			Layer nLayer
+				Default Zoom
+	Else
+		Note GetResItemStr("ERR_SELECT_NORMAL_LAYER_IN_LAYER_CONTROL")
+		Exit Sub
+	End If
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINHSetDefaultViewAllLayers")
+	Call ERRShow()
+
+End Sub
+

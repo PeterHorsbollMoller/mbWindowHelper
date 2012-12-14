@@ -1,0 +1,6 @@
+Declare Sub BWINSetBaseWindowPosition
+Declare Sub BWINSetupBaseWindowsDlg
+
+Declare Sub BWINSetIniFile(ByVal sFile As String)
+Declare Sub BWINReadIniFile(ByVal sFile As String)
+Declare Sub BWINWriteIniFile(ByVal sFile As String)

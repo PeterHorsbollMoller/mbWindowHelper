@@ -1,0 +1,17 @@
+'Declare Sub WINHWinClosedHandler(ByVal nWID As Integer)
+'Declare Sub WINHWinFocusChangedHandler(ByVal nWID As Integer)
+
+'Declare Sub WINHAutoLockWindowSwitchMenu
+'Declare Sub WINHLockWindowMenu
+'Declare Sub WINHUnlockWindowMenu
+
+Declare Sub WINHCloneWindowMenu
+'Declare Sub WINHCloseWindowMenu
+'Declare Sub WINHRestoreWindowMenu
+
+'Declare Function WINHAutolockWindows() As Logical
+'Declare Sub WINHSetAutolockWindows(ByVal bAutolock As Logical)
+
+Declare Sub WINHZoomEntireAllLayers
+Declare Sub WINHSetDefaultViewAllLayers
+Declare Sub WINHSetDefaultViewSingleLayer

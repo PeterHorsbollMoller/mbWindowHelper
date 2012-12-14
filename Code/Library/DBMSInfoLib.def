@@ -1,0 +1,44 @@
+'********************************************************************************************************
+'  H I S T R Y    O F    D B M S I N F O L I B
+'********************************************************************************************************
+'	Created 01-12-2011
+'	- A lot of the content has been copied from the module SQLUtil in Samples\MapBasic\Database
+'	- The functions and procedures have been "modernised" and error handling has been added
+'********************************************************************************************************
+
+'Database Types
+DEFINE  DATA_SOURCE_UNKNOWN		-1
+Define  DATA_SOURCE_ORACLE		1
+DEFINE  DATA_SOURCE_SYBASE		2
+DEFINE  DATA_SOURCE_SQLSERVER		3
+DEFINE  DATA_SOURCE_SQLBASE		4
+DEFINE  DATA_SOURCE_INFORMIX		5
+DEFINE  DATA_SOURCE_INGRES		6
+DEFINE  DATA_SOURCE_DB2			7
+DEFINE  DATA_SOURCE_MSACCESS		8
+DEFINE  DATA_SOURCE_DBASE		9
+DEFINE  DATA_SOURCE_TEXT			10
+DEFINE  DATA_SOURCE_EXCEL4		11
+DEFINE  DATA_SOURCE_EXCEL5		12
+DEFINE  DATA_SOURCE_SQS			13
+DEFINE  DATA_SOURCE_SPATIALWARE	14
+DEFINE  DATA_SOURCE_IUS			15
+DEFINE  DATA_SOURCE_SQLSERVER_SW	16
+
+Declare Sub DBIRunSQLFile(ByVal nConnection As Integer, ByVal sFile As String)
+
+Declare Function DBIGetSQLDatabaseType(ByVal nConnection As Integer) As Integer
+Declare Function DBIGetSQLUserid(ByVal nConnection As Integer) As String
+Declare Function DBIGetServerName(ByVal nConnection As Integer) As String
+Declare Function DBIGetDBName(ByVal nConnection As Integer) As String
+Declare Function DBIGetDSNName(ByVal nConnection As Integer) As String
+Declare Function DBIGetQuoteChar(ByVal nConnection As Integer) As String
+Declare Function DBITableExists(ByVal nConnection As Integer, ByVal sSRVTableName As String) As Logical
+Declare Function DBIDBMSIsInstalled(ByVal bShowMsg As Logical) as Logical
+
+Declare Function SQLGetInfo32 LIB "ODBC32.DLL" Alias  "SQLGetInfo"
+									( ByVal odbchdbc As Integer
+									, ByVal snInfoflag As SmallInt
+									, sDatabase As String
+									, ByVal snLen As SmallInt
+									, snOutlen As SmallInt) As SmallInt

@@ -1,0 +1,9 @@
+Declare Sub WSHWShowInfoWindow
+Declare Sub WSHWShowMapBasicWindow
+Declare Sub WSHWShowMessageWindow
+Declare Sub WSHWShowStatisticsWindow
+Declare Sub WSHWShowLegendWindow
+Declare Sub WSHWShowRulerWindow
+Declare Sub WSHWShowAllWindows
+
+Declare Sub WSHWShowWindow(ByVal nWID As Integer)

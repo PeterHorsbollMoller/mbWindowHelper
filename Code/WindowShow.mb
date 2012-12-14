@@ -1,0 +1,192 @@
+'*******************************************************************************
+'** 	Program:	WindowHelper
+'** 	Modul:	WindowShow.mb
+'**
+'*******************************************************************************
+
+'-------------------------------------
+Include "Library\MapBasic.def"
+Include "Library\Icons.def"
+Include "Library\Menu.def"
+'**default constants...
+Include "Library\Defaults.def"
+
+'-------------------------------------
+Include "Library\DEBUGLib.def"
+Include "Library\ERRORLib.def"
+Include "Library\TABLELib.def"
+
+Include "Library\Types\T_WINDOW_SIZE_POSITION.def"
+
+Include "WindowShow.def"
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WSHWShowInfoWindow
+
+OnError GoTo ErrorOccured
+
+	Call WSHWShowWindow(WIN_INFO)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WSHWShowInfoWindow")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WSHWShowMapBasicWindow
+
+OnError GoTo ErrorOccured
+
+	Call WSHWShowWindow(WIN_MAPBASIC)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WSHWShowMapBasicWindow")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WSHWShowMessageWindow
+
+OnError GoTo ErrorOccured
+
+	Call WSHWShowWindow(WIN_MESSAGE)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WSHWShowMessageWindow")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WSHWShowStatisticsWindow
+
+OnError GoTo ErrorOccured
+
+	Call WSHWShowWindow(WIN_STATISTICS)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WSHWShowStatisticsWindow")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WSHWShowLegendWindow
+
+OnError GoTo ErrorOccured
+
+	Call WSHWShowWindow(WIN_LEGEND)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WSHWShowLegendWindow")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WSHWShowRulerWindow
+
+OnError GoTo ErrorOccured
+
+	Call WSHWShowWindow(WIN_RULER)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WSHWShowRulerWindow")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WSHWShowAllWindows
+
+OnError GoTo ErrorOccured
+
+	Call WSHWShowWindow(WIN_INFO)
+	Call WSHWShowWindow(WIN_MAPBASIC)
+	Call WSHWShowWindow(WIN_MESSAGE)
+	Call WSHWShowWindow(WIN_STATISTICS)
+	Call WSHWShowWindow(WIN_LEGEND)
+	Call WSHWShowWindow(WIN_RULER)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WSHWShowAllWindows")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WSHWShowWindow(ByVal nWID As Integer)
+
+Dim	wspMI, wspShow As T_WINDOW_SIZE_POSITION
+
+OnError GoTo ErrorOccured
+
+	wspMI.sPaperUnits = "cm"
+	Call twspGetFromWindow(WIN_MAPINFO, wspMI)
+	wspShow.sPaperUnits = "cm"
+	Call twspGetFromWindow(nWID, wspShow)
+
+	If (wspShow.fX + wspShow.fWidth) > wspMI.fWidth Then
+		Call DEBUGPrint("Window is to the right of the MI window")
+		wspShow.fX = (wspMI.fWidth - wspShow.fWidth) - 0.5
+	End If
+	If (wspShow.fY + wspShow.fHeight) > wspMI.fHeight Then
+		Call DEBUGPrint("Window is below the MI window")
+		wspShow.fY = (wspMI.fHeight - wspShow.fHeight) - 2
+
+	End If
+
+	wspShow.bIsOpen = TRUE
+	Call twspSetOnWindow(nWID, wspShow)
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WSHWShowWindow")
+	Call ERRShow()
+
+End Sub
+
+
+

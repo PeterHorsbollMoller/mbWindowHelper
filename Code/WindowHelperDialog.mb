@@ -1,0 +1,338 @@
+'*******************************************************************************
+'** 	Created By Peter Horsbøll Møller, Pitney Bowes Business Insight
+'** 	Program:
+'** 	Modul:
+'**
+'*******************************************************************************
+
+'-------------------------------------
+Include "Library\MapBasic.def"
+Include "Library\Icons.def"
+Include "Library\Menu.def"
+'**default constants...
+Include "Library\Defaults.def"
+
+'-------------------------------------
+Include "Library\DEBUGLib.def"
+Include "Library\ERRORLib.def"
+Include "Library\TABLELib.def"
+
+Include "WindowHelperDialog.def"
+
+Declare Method WinHelpDlgShow Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nMainWnd As Integer)
+Declare Method WinHelpDlgClose Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	()
+Declare Method WinHelpDlgAddWindow Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nMainWnd As Integer, ByVal nWID As Integer, ByVal sName As String, ByVal nType As Integer)
+Declare Method WinHelpDlgAddWindows Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nMainWnd As Integer, arrWIDs() As Integer, arrNames() As String, arrTypes() As Integer)
+Declare Method WinHelpDlgAddAllWindows Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nMainWnd As Integer, arrWIDs() As Integer, arrNames() As String, arrTypes() As Integer)
+
+Declare Method WinHelpDlgAddClosedWindow Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nMainWnd As Integer, ByVal nWID As Integer, ByVal sName As String, ByVal nType As Integer)
+
+Declare Method WinHelpDlgLoadSpecialWindows Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nMainWnd As Integer)
+
+Declare Method WinHelpDlgWinFocusChanged Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nWID As Integer)
+Declare Method WinHelpDlgWinClosed Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nWID As Integer)
+Declare Method WinHelpDlgWinChanged Class "WindowHelper.Controller" Lib "WindowHelper.dll"
+	(ByVal nWID As Integer)
+
+
+Declare Sub WHDSendAllWindows
+Declare Sub WHDSendSomeWindows(ByVal nStartWindowIndex As Integer)
+
+Dim	mnMIWnd, mnNumWindows, mnPreviousWID As Integer
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Business Insight
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WHDInitialize
+
+Dim	i, nWID As Integer
+
+OnError GoTo ErrorOccured
+
+'	Call MapBasicWindowShow()	'mnMIWnd)
+
+	mnMIWnd		= SystemInfo(SYS_INFO_MAPINFOWND)
+	Call WinHelpDlgShow(mnMIWnd)
+	Call WinHelpDlgLoadSpecialWindows(mnMIWnd)
+'	Call InfoWindowShow()
+
+	mnNumWindows	= NumWindows()
+	If mnNumWindows = 0 Then
+		Call WinHelpDlgWinFocusChanged(0)
+		Exit Sub
+	End If
+
+	Call WHDSendAllWindows
+'	For i = 1 To mnNumWindows
+'		nWID	= WindowID(i)
+'		Call WinHelpDlgAddWindow (mnMIWnd, nWID, WindowInfo(nWID, WIN_INFO_NAME), WindowInfo(nWID, WIN_INFO_TYPE))
+'	Next
+
+	nWID = FrontWindow()
+	Call WinHelpDlgWinFocusChanged(nWID)
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WHDInitialize")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Business Insight
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WHDWinClosedHandler(ByVal nWID As Integer)
+
+Dim	sType As String
+
+OnError GoTo ErrorOccured
+
+	Call WinHelpDlgWinClosed(nWID)
+	mnNumWindows	= NumWindows()
+
+	Do Case WindowInfo(nWID, WIN_INFO_TYPE)
+		Case WIN_MAPPER
+			sType	= "Mapper"
+		Case WIN_BROWSER
+			sType	= "Browser"
+		Case WIN_LAYOUT
+			sType	= "Layout"
+		Case WIN_GRAPH
+			sType	= "Graph"
+		Case WIN_3DMAP
+			sType	= "3DMap"
+		Case WIN_MAPBASIC
+			sType	= "MapBasic"
+		Case WIN_CART_LEGEND
+			sType	= "Cartographic Legend"
+			Call DEBUGPrint("Legends Map ID: " & LegendInfo(nWID, LEGEND_INFO_MAP_ID))
+			If LegendInfo(nWID, LEGEND_INFO_MAP_ID) = mnPreviousWID Then
+				'**Sorry but this type can not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored because the map has just been closed")
+				Exit Sub
+			End If
+		Case WIN_LEGEND_DESIGNER
+			sType	= "Legend Designer"
+			Call DEBUGPrint("Legend Designers Map ID: " & LegendInfo(nWID, LEGEND_INFO_MAP_ID))
+			If LegendInfo(nWID, LEGEND_INFO_MAP_ID) = mnPreviousWID Then
+				'**Sorry but this type can not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored because the map has just been closed")
+				Exit Sub
+			End If
+		Case WIN_BUTTONPAD
+			sType	= "Buttonpad"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_TOOLBAR
+			sType	= "Toolbar"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_ADORNMENT
+			sType	= "Adornment"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_HELP
+			sType	= "Help"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_MESSAGE
+			sType	= "Message"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_RULER
+			sType	= "Ruler"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_INFO
+			sType	= "Info"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_LEGEND
+			sType	= "Legend"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_STATISTICS
+			sType	= "Statistics"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+		Case WIN_MAPINFO
+			sType	= "MapInfo"
+			'**Sorry but this type will not be stored
+			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+			Exit Sub
+	End Case
+
+	Call DEBUGPrint("Closing window (" & sType & "): " & nWID & " " & WindowInfo(nWID, WIN_INFO_NAME))
+	Call WinHelpDlgAddClosedWindow(mnMIWnd, nWID, WindowInfo(nWID, WIN_INFO_NAME), WindowInfo(nWID, WIN_INFO_TYPE))
+	'WindowInfo(nWID, WIN_INFO_CLONEWINDOW)
+
+	mnPreviousWID = nWID
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WHDWinClosedHandler")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Business Insight
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WHDWinFocusChangedHandler(ByVal nWID As Integer)
+
+Dim	i, nWinID, nNumWindows As Integer
+
+OnError GoTo ErrorOccured
+
+	nNumWindows	= NumWindows()
+	If nNumWindows > mnNumWindows Then
+		If (nNumWindows - mnNumWindows) = 1 Then
+			Call DEBUGPrint("Sending 1 Window")
+			Call WinHelpDlgAddWindow(mnMIWnd, nWID, WindowInfo(nWID, WIN_INFO_NAME), WindowInfo(nWID, WIN_INFO_TYPE))
+		Else
+			Call WHDSendSomeWindows(1)
+		End If
+	End If
+	mnNumWindows	= nNumWindows
+
+	Call WinHelpDlgWinFocusChanged(nWID)
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WHDWinFocusChangedHandler")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Business Insight
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WHDWinChangedHandler(ByVal nWID As Integer)
+
+OnError GoTo ErrorOccured
+
+	Call WinHelpDlgWinChanged(nWID)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WHDWinChangedHandler")
+	Call ERRShow()
+
+End Sub
+
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Business Insight
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WHDEndHandler
+
+OnError GoTo ErrorOccured
+
+	Call WinHelpDlgClose()
+'	Call MapBasicWindowClose()
+'	Call InfoWindowClose()
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WHDEndHandler")
+'	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Business Insight
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WHDSendAllWindows
+
+Dim	i, nWID, nNumWindows As Integer,
+	arrIDs(), arrTypes() As Integer,
+	arrNames() As String
+
+OnError GoTo ErrorOccured
+
+	nNumWindows	= NumWindows()
+	Redim arrIDs(nNumWindows)
+	Redim arrTypes(nNumWindows)
+	Redim arrNames(nNumWindows)
+	For i = 1 To nNumWindows
+		nWID	= WindowID(i)
+		arrIDs(i)	= nWID
+		arrNames(i)	= WindowInfo(nWID, WIN_INFO_NAME)
+		arrTypes(i)	= WindowInfo(nWID, WIN_INFO_TYPE)
+
+	Next
+	Call WinHelpDlgAddAllWindows(mnMIWnd, arrIDs, arrNames, arrTypes)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WHDSendAllWindows")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Business Insight
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WHDSendSomeWindows(ByVal nStartWindowIndex As Integer)
+
+Dim	i, nNumWindow, nNumWindows, nWID As Integer,
+	arrIDs(), arrTypes() As Integer,
+	arrNames() As String
+
+OnError GoTo ErrorOccured
+
+	nNumWindows	= NumWindows()
+	Redim arrIDs((nNumWindows - nStartWindowIndex) + 1)
+	Redim arrTypes((nNumWindows - nStartWindowIndex) + 1)
+	Redim arrNames((nNumWindows - nStartWindowIndex) + 1)
+	For i = nStartWindowIndex To nNumWindows
+		nNumWindow			= nNumWindow + 1
+		nWID					= WindowID(i)
+		arrIDs(nNumWindow)		= nWID
+		arrNames(nNumWindow)	= WindowInfo(nWID, WIN_INFO_NAME)
+		arrTypes(nNumWindow)	= WindowInfo(nWID, WIN_INFO_TYPE)
+
+	Next
+	Call DEBUGPrint("Sending " & Ubound(arrIDs) & " Windows")
+	Call WinHelpDlgAddWindows (mnMIWnd, arrIDs, arrNames, arrTypes)
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WHDSendSomeWindows")
+	Call ERRShow()
+
+End Sub

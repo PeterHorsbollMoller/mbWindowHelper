@@ -1,0 +1,6 @@
+
+' Public functions
+Declare Function RESSTRNGGetString(ByVal iResId As Integer) As String
+
+' Prototypes
+Declare Function RESSTRNGLoadStrings(ByVal FileName As String) As Logical

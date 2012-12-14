@@ -1,0 +1,377 @@
+'*******************************************************************************
+'** 	Program:
+'** 	Modul:	WindowPosition.mb
+'**
+'*******************************************************************************
+
+'-------------------------------------
+Include "..\..\Library\MapBasic.def"
+Include "..\..\Library\Icons.def"
+Include "..\..\Library\Menu.def"
+'**default constants...
+Include "..\..\Library\Defaults.def"
+
+'-------------------------------------
+Include "..\..\Library\CONFIGFILELib.def"
+Include "..\..\Library\DEBUGLib.def"
+Include "..\..\Library\ERRORLib.def"
+Include "..\..\Library\STRINGLib.def"
+Include "..\..\Library\TABLELib.def"
+
+Include "..\..\Library\Types\T_WINDOW_SIZE_POSITION.def"
+
+Include "BaseWindows.def"
+Include "Resources.def"
+
+Declare Method GetScreenSize Class "WindowHelper.Controller" Lib "WindowHelper.dll" () As String
+
+Declare Sub BWINHndlr_WindowNames_Clicked
+Declare Sub BWINHndlr_Create_Clicked
+Declare Sub BWINHndlr_Update_Clicked
+Declare Sub BWINHndlr_WindowNamesResize_Clicked
+Declare Sub BWINHndlr_Change_Clicked
+
+Define	CTRL_LST_WINDOW_NAMES		100
+Define	CTRL_TXT_NEW_NAME			200
+Define	CTRL_BTN_CREATE			1000
+Define	CTRL_BTN_UPDATE			2000
+Define	CTRL_BTN_CANCEL			3000
+Define	CTRL_BTN_CHANGE			1000
+
+Dim	msIniFile As String,
+	mbWriteIniFile As Logical
+Dim	marrBaseWindowNames() As String,
+	marrBaseWindows() As T_WINDOW_SIZE_POSITION,
+	mtwspFront As T_WINDOW_SIZE_POSITION
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINSetIniFile(ByVal sFile As String)
+
+OnError GoTo ErrorOccured
+
+	msIniFile = sFile
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINSetIniFile")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINReadIniFile(ByVal sFile As String)
+
+Dim	sName, sHash, sSize As String,
+	i As Integer
+
+OnError GoTo ErrorOccured
+
+	Call DEBUGPrint("   BWINReadIniFile:")
+	sSize = GetScreenSize()
+	i = 1
+	sName = CONFIGReadKey(sFile, "BASEWINDOWNAMES", "BASEWINDOW" & i)
+	Do While sName <> ""
+
+		Redim marrBaseWindows(i)
+		Redim marrBaseWindowNames(i)
+		marrBaseWindowNames(i)	= sName
+
+		Call DEBUGPrint("   BASEWINDOWS_" & sSize & ", " & sName)
+		sHash = CONFIGReadKey(sFile, "BASEWINDOWS_" & sSize, sName)
+		Call DEBUGPrint("      ->" & sHash)
+		If sHash = "" Then
+			marrBaseWindows(i).sPaperUnits	= SessionInfo(SESSION_INFO_PAPER_UNITS)
+		Else
+			Call twspFromHash(sHash, marrBaseWindows(i))
+		End If
+
+		i = i + 1
+		sName = CONFIGReadKey(sFile, "BASEWINDOWNAMES", "BASEWINDOW" & i)
+	Loop
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINReadIniFile")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINWriteIniFile(ByVal sFile As String)
+
+Dim	i As Integer,
+	sSize, sName As String
+
+OnError GoTo ErrorOccured
+
+	sSize = GetScreenSize()
+	For i = 1 To Ubound(marrBaseWindowNames)
+		sName	= marrBaseWindowNames(i)
+		Call CONFIGWriteKey(sFile, "BASEWINDOWNAMES", "BASEWINDOW" & i, sName)
+
+		Call CONFIGWriteKey(sFile, "BASEWINDOWS_" & sSize, sName, twspToHash(marrBaseWindows(i)))
+	Next
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINWriteIniFile")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINSetBaseWindowPosition
+
+Dim	sSize As String
+
+OnError GoTo ErrorOccured
+
+	If NumWindows() = 0 Then
+		Note GetResItemStr("ERR_OPEN_WINDOW_TO_RESIZE_REPOSITION")		'"Please open a window to resize and reposition!"
+		Exit Sub
+	End If
+
+	sSize = GetScreenSize()
+	Dialog
+		Title GetResItemStrReplace("DLG_BASE_WINDOW_X", sSize)		'"Base windows ( " & sSize & ")"
+
+		Control ListBox		Position 10,10	Width 130	Height 100		ID CTRL_LST_WINDOW_NAMES
+			Title From Variable marrBaseWindowNames
+			Calling BWINHndlr_WindowNamesResize_Clicked
+
+		Control OKButton		Position 55,120	Width 40				ID CTRL_BTN_CHANGE
+			Title GetResItemStr("STR_CHANGE")		'"Change"
+			Calling BWINHndlr_Change_Clicked
+			Disable
+		Control CancelButton	Position 100,120	Width 40				ID CTRL_BTN_CANCEL
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINSetBaseWindowPosition")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINHndlr_WindowNamesResize_Clicked
+
+OnError GoTo ErrorOccured
+
+	Alter Control CTRL_BTN_CHANGE Enable
+	If CommandInfo(CMD_INFO_DLG_DBL) Then
+		Dialog Remove
+		Call BWINHndlr_Change_Clicked
+	End If
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINHndlr_WindowNamesResize_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINHndlr_Change_Clicked
+
+Dim	nItem As Integer
+
+OnError GoTo ErrorOccured
+
+	nItem	= ReadControlValue(CTRL_LST_WINDOW_NAMES)
+	If nItem = 0 Then
+		Dialog Preserve
+		Exit Sub
+	End If
+
+	marrBaseWindows(nItem).sName = ""
+	Call twspSetOnWindow(FrontWindow(), marrBaseWindows(nItem))
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINHndlr_Change_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINSetupBaseWindowsDlg
+
+Dim	sSize As String
+
+OnError GoTo ErrorOccured
+
+	If NumWindows() = 0 Then
+		Note GetResItemStr("ERR_OPEN_WINDOW_TO_READ_SIZE_POSITION")		'"Please open a window to read the size and position from!"
+		Exit Sub
+	End If
+
+	Call twspGetFromWindow(FrontWindow(), mtwspFront)
+
+	mbWriteIniFile	= FALSE
+	sSize 		= GetScreenSize()
+	Dialog
+		Title GetResItemStrReplace("DLG_BASE_WINDOW_X", sSize)
+
+		Control ListBox		Position 10,10	Width 100	Height 100		ID CTRL_LST_WINDOW_NAMES
+			Title From Variable marrBaseWindowNames
+			Calling BWINHndlr_WindowNames_Clicked
+
+		Control StaticText	Position 120,10
+			Title GetResItemStr("STR_NAME")
+		Control EditText		Position 120,20	Width 100				ID CTRL_TXT_NEW_NAME
+			Value GetResItemStr("STR_NEW_BASE_WINDOW")
+
+		Control StaticText	Position 120,35
+			Title GetResItemStr("STR_POSITION") & ":"
+		Control StaticText	Position 120,45	Width 48
+			Title GetResItemStr("STR_X") & ": " & twspGetXWithUnit(mtwspFront)
+		Control StaticText	Position 170,45	Width 48
+			Title GetResItemStr("STR_Y") & ": " & twspGetYWithUnit(mtwspFront)
+
+		Control StaticText	Position 120,60	Width 100
+			Title GetResItemStr("STR_HEIGHT") & ": " & twspGetHeightWithUnit(mtwspFront)
+		Control StaticText	Position 120,70	Width 100
+			Title GetResItemStr("STR_WIDTH") & ": " & twspGetWidthWithUnit(mtwspFront)
+
+		Control OKButton		Position 90,120	Width 40				ID CTRL_BTN_CREATE
+			Title GetResItemStr("STR_CREATE")
+			Calling BWINHndlr_Create_Clicked
+		Control Button		Position 135,120	Width 40				ID CTRL_BTN_UPDATE
+			Title GetResItemStr("STR_UPDATE")
+			Calling BWINHndlr_Update_Clicked
+			Disable
+		Control CancelButton	Position 180,120	Width 40				ID CTRL_BTN_CANCEL
+
+	If mbWriteIniFile Then
+		Call BWINWriteIniFile(msIniFile)
+	End If
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINSetupBaseWindowsDlg")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINHndlr_WindowNames_Clicked
+
+OnError GoTo ErrorOccured
+
+	If ReadControlValue(CTRL_LST_WINDOW_NAMES) > 0 Then
+		Alter Control CTRL_BTN_UPDATE Enable
+	End If
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINHndlr_WindowNames_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINHndlr_Create_Clicked
+
+Dim	sName As String,
+	nCount As Integer
+
+OnError GoTo ErrorOccured
+
+	sName = ReadControlValue(CTRL_TXT_NEW_NAME)
+	If sName = "" Then
+		Note GetResItemStr("ERR_ENTER_NAME_FOR_NEW_BASE_WINDOW")		'"Please enter a name of the new base window!"
+		Dialog Preserve
+		Exit Sub
+	End If
+
+	nCount = Ubound(marrBaseWindowNames) + 1
+	Redim marrBaseWindowNames(nCount)
+	marrBaseWindowNames(nCount)	= sName
+
+	Redim marrBaseWindows(nCount)
+	mtwspFront.sName = sName
+	Call twspCopy(mtwspFront, marrBaseWindows(nCount))
+
+	mbWriteIniFile	= TRUE
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINHndlr_Create_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub BWINHndlr_Update_Clicked
+
+Dim	nItem As Integer
+
+OnError GoTo ErrorOccured
+
+	nItem = ReadControlValue(CTRL_LST_WINDOW_NAMES)
+	If nItem = 0 Then
+		Note GetResItemStr("ERR_SELECT_BASE_WINDOW_TO_UPDATE")		'"Please select the base window to update!"
+		Dialog Preserve
+		Exit Sub
+	End If
+
+	mtwspFront.sName = marrBaseWindows(nItem).sName
+	Call twspCopy(mtwspFront, marrBaseWindows(nItem))
+
+	mbWriteIniFile	= TRUE
+
+	Dialog Remove
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "BWINHndlr_Update_Clicked")
+	Call ERRShow()
+
+End Sub

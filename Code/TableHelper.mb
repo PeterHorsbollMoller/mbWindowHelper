@@ -1,0 +1,240 @@
+'*******************************************************************************
+'** 	Created By Peter Horsbøll Møller, Pitney Bowes Software
+'** 	Program:	WindowHelper
+'** 	Modul:
+'**
+'*******************************************************************************
+
+'-------------------------------------
+Include "Library\MapBasic.def"
+Include "Library\Icons.def"
+Include "Library\Menu.def"
+'**default constants...
+Include "Library\Defaults.def"
+
+'-------------------------------------
+Include "Library\DEBUGLib.def"
+Include "Library\ERRORLib.def"
+Include "Library\TABLELib.def"
+
+Include "TableHelper.def"
+Include "Resources.def"
+
+Dim	msTextEditor As String
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub TABHLocateTabFileTL
+
+Dim	sTab, sFile As String
+
+	If TableListInfo(TL_INFO_SEL_COUNT) <> 1 Then
+		Note GetResItemStr("ERR_SELECT_ONE_TABLE_IN_TABLELIST")		'"Please select one table in the TableList window!"
+		Exit Sub
+	End If
+
+	sTab = TableListSelectionInfo (1, TL_SEL_INFO_NAME)
+	Do Case TableInfo(sTab, TAB_INFO_TYPE)
+		Case TAB_TYPE_BASE, TAB_TYPE_FME, TAB_TYPE_LINKED, TAB_TYPE_WFS, TAB_TYPE_WMS
+			sFile	= TableInfo(sTab, TAB_INFO_TABFILE)
+		Case TAB_TYPE_IMAGE
+			If Ask(GetResItemStr("ASK_LOCATE_TAB_FILE_OR_RASTER_FILE"), GetResItemStr("STR_TAB_FILE"), GetResItemStr("STR_RASTER_FILE")) Then	'Ask("Do you want to find the tab file or the raster file?", "Table", "Raster") Then
+				sFile	= TableInfo(sTab, TAB_INFO_TABFILE)
+			Else
+				sFile = RasterTableInfo(sTab, RASTER_TAB_INFO_IMAGE_NAME)
+			End If
+		Case Else
+			Note GetResItemStr("ERR_SELECT_NON_TEMPORAL_LAYER_IN_LAYER_CONTROL")		' "Please select a non temporal table!"
+			Exit Sub
+	End Case
+
+	Run Program "Explorer.exe /select," & sFile
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "TABHLocateTabFileTL")
+	Call ERRShow()
+
+End Sub 'TABHLocateTabFileTL
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub TABHLocateTabFileLC
+
+Dim	nMID, nLayerID As Integer,
+	sTab, sFile As String
+
+	If LayerControlInfo(LC_INFO_SEL_COUNT) <> 1 Then
+		Note GetResItemStr("ERR_SELECT_ONE_LAYER_IN_LAYER_CONTROL")		'"Please select one layer in the Layer Control!"
+		Exit Sub
+	End If
+
+	If LayerControlSelectionInfo (1, LC_SEL_INFO_TYPE) <> LC_SEL_INFO_TYPE_LAYER Then
+		Note GetResItemStr("ERR_SELECT_ONE_LAYER_IN_LAYER_CONTROL")		'"Please select one layer in the Layer Control!"
+		Exit Sub
+	End If
+
+	nMID		= LayerControlSelectionInfo(1, LC_SEL_INFO_MAPWIN_ID)
+	nLayerID	= LayerControlSelectionInfo(1, LC_SEL_INFO_LAYER_ID)
+	sTab 	= LayerInfo(nMID, nLayerID, LAYER_INFO_NAME)
+
+	Do Case LayerInfo(nMID, nLayerID, LAYER_INFO_TYPE)
+		Case LAYER_INFO_TYPE_NORMAL
+			sFile	= TableInfo(sTab, TAB_INFO_TABFILE)
+		Case LAYER_INFO_TYPE_GRID
+			If Ask(GetResItemStr("ASK_LOCATE_TAB_FILE_OR_GRID_FILE"), GetResItemStr("STR_TAB_FILE"), GetResItemStr("STR_GRID_FILE")) Then	'Ask("Do you want to find the tab file or the grid file?", "Table", "Grid") Then
+				sFile	= TableInfo(sTab, TAB_INFO_TABFILE)
+			Else
+				sFile = RasterTableInfo(sTab, RASTER_TAB_INFO_IMAGE_NAME)
+			End If
+		Case LAYER_INFO_TYPE_IMAGE
+			If Ask(GetResItemStr("ASK_LOCATE_TAB_FILE_OR_RASTER_FILE"), GetResItemStr("STR_TAB_FILE"), GetResItemStr("STR_RASTER_FILE")) Then	'Ask("Do you want to find the tab file or the raster file?", "Table", "Raster") Then
+				sFile	= TableInfo(sTab, TAB_INFO_TABFILE)
+			Else
+				sFile = RasterTableInfo(sTab, RASTER_TAB_INFO_IMAGE_NAME)
+			End If
+		Case Else
+			Note GetResItemStr("ERR_SELECT_NORMAL_OR_RASTER_OR_GRID_LAYER_IN_LAYER_CONTROL")		' "Please select a normal or raster/grid layer!"
+			Exit Sub
+	End Case
+
+	Run Program "Explorer.exe /select," & sFile
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "TABHLocateTabFileLC")
+	Call ERRShow()
+
+End Sub 'TABHLocateTabFileLC
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub TABHOpenTabFileTL
+
+Dim	sTab, sFile As String
+
+	If TableListInfo(TL_INFO_SEL_COUNT) <> 1 Then
+		Note GetResItemStr("ERR_SELECT_ONE_TABLE_IN_TABLELIST")		'"Please select one table in the TableList window!"
+		Exit Sub
+	End If
+
+	sTab		= TableListSelectionInfo (1, TL_SEL_INFO_NAME)
+	sFile	= TableInfo(sTab, TAB_INFO_TABFILE)
+
+	If sFile <> "" Then
+		Print "Run Program " & msTextEditor + Chr$(32) + sFile
+		Run Program msTextEditor + Chr$(32) + sFile
+	Else
+		Note GetResItemStr("ERR_SELECT_NON_TEMPORAL_LAYER_IN_LAYER_CONTROL")		' "Please select a non temporal table!"
+	End If
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "TABHOpenTabFileTL")
+	Call ERRShow()
+
+End Sub 'TABHOpenTabFileTL
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub TABHOpenTabFileLC
+
+Dim	nMID, nLayerID As Integer,
+	sTab, sFile As String
+
+	If LayerControlInfo(LC_INFO_SEL_COUNT) <> 1 Then
+		Note GetResItemStr("ERR_SELECT_ONE_LAYER_IN_LAYER_CONTROL")		'"Please select one layer in the Layer Control!"
+		Exit Sub
+	End If
+
+	If LayerControlSelectionInfo (1, LC_SEL_INFO_TYPE) <> LC_SEL_INFO_TYPE_LAYER Then
+		Note GetResItemStr("ERR_SELECT_ONE_LAYER_IN_LAYER_CONTROL")		'"Please select one layer in the Layer Control!"
+		Exit Sub
+	End If
+
+	nMID		= LayerControlSelectionInfo(1, LC_SEL_INFO_MAPWIN_ID)
+	nLayerID	= LayerControlSelectionInfo(1, LC_SEL_INFO_LAYER_ID)
+	sTab 	= LayerInfo(nMID, nLayerID, LAYER_INFO_NAME)
+	sFile	= TableInfo(sTab, TAB_INFO_TABFILE)
+
+	If sFile <> "" Then
+		Call DEBUGPrint("Run Program " & msTextEditor + Chr$(32) + sFile)
+		Run Program msTextEditor & Chr$(32) & sFile
+	Else
+		Note GetResItemStr("ERR_SELECT_NON_TEMPORAL_LAYER_IN_LAYER_CONTROL")		' "Please select a non temporal layer in the layer control!"
+	End If
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "TABHOpenTabFileLC")
+	Call ERRShow()
+
+End Sub 'TABHOpenTabFileLC
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub TABHCloseTableLC
+
+Dim	nMID, nLayerID As Integer,
+	sTab, sFile As String
+
+	If LayerControlInfo(LC_INFO_SEL_COUNT) <> 1 Then
+		Note GetResItemStr("ERR_SELECT_ONE_LAYER_IN_LAYER_CONTROL")		'Note "Please select one layer in the Layer Control!"
+		Exit Sub
+	End If
+
+	If LayerControlSelectionInfo (1, LC_SEL_INFO_TYPE) <> LC_SEL_INFO_TYPE_LAYER Then
+		Note GetResItemStr("ERR_SELECT_ONE_LAYER_IN_LAYER_CONTROL")		'Note "Please select one layer in the Layer Control!"
+		Exit Sub
+	End If
+
+	nMID		= LayerControlSelectionInfo(1, LC_SEL_INFO_MAPWIN_ID)
+	nLayerID	= LayerControlSelectionInfo(1, LC_SEL_INFO_LAYER_ID)
+	sTab 	= LayerInfo(nMID, nLayerID, LAYER_INFO_NAME)
+
+	Close Table sTab Interactive
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "TABHCloseTableLC")
+	Call ERRShow()
+
+End Sub 'TABHCloseTableLC
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub TABHSetTextEditor(ByVal sTextEditor As String)
+
+OnError GoTo ErrorOccured
+
+	msTextEditor	= sTextEditor
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "TABHSetTextEditor")
+	Call ERRShow()
+
+End Sub

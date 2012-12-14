@@ -1,0 +1,280 @@
+'*******************************************************************************
+'** 	Program:
+'** 	Modul:	WindowPosition.mb
+'**
+'*******************************************************************************
+
+'-------------------------------------
+Include "Library\MapBasic.def"
+Include "Library\Icons.def"
+Include "Library\Menu.def"
+'**default constants...
+Include "Library\Defaults.def"
+
+'-------------------------------------
+Include "Library\CONFIGFILELib.def"
+Include "Library\DEBUGLib.def"
+Include "Library\ERRORLib.def"
+Include "Library\STRINGLib.def"
+Include "Library\TABLELib.def"
+
+Include "Library\Types\T_WINDOW_SIZE_POSITION.def"
+
+Include "WindowPosition.def"
+Include "Resources.def"
+
+Declare Method GetScreenSize Class "WindowHelper.Controller" Lib "WindowHelper.dll" () As String
+
+Dim	marrWindows() As T_WINDOW_SIZE_POSITION,
+	marrWindowAutoStore() As Logical
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINPStoreWindowPositionMenu
+
+Dim	i As Integer
+
+OnError GoTo ErrorOccured
+
+	If Ask(GetResItemStr("QUEST_AUTOSTORE_WINDOW_POSITIONS"), GetResItemStr("STR_YES"), GetResItemStr("STR_NO")) Then
+		For i = 1 To Ubound(marrWindowAutoStore)
+			marrWindowAutoStore(i) = TRUE
+		Next
+	End If
+
+	Call WINPAutoStoreWindowPosition
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINPStoreWindowPositionMenu")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINPStoreWindowPosition
+
+Dim	i As Integer
+
+OnError GoTo ErrorOccured
+
+	For i = 1 To Ubound(marrWindows)
+'		If marrWindowAutoStore(i) Then
+			Call twspGetFromWindow(marrWindows(i).nWID, marrWindows(i))
+'		End If
+	Next
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINPStoreWindowPosition")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINPRestoreWindowPosition
+
+Dim	i As Integer
+
+OnError GoTo ErrorOccured
+
+	For i = 1 To Ubound(marrWindows)
+'		If marrWindowAutoStore(i) Then
+			Call twspSetOnWindow(marrWindows(i).nWID, marrWindows(i))
+'		End If
+	Next
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINPRestoreWindowPosition")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINPAutoStoreWindowPosition
+
+Dim	i As Integer
+
+OnError GoTo ErrorOccured
+
+	For i = 1 To Ubound(marrWindows)
+		If marrWindowAutoStore(i) Then
+			Call twspGetFromWindow(marrWindows(i).nWID, marrWindows(i))
+		End If
+	Next
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINPAutoStoreWindowPosition")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINPAutoRestoreWindowPosition
+
+Dim	i As Integer
+
+OnError GoTo ErrorOccured
+
+	For i = 1 To Ubound(marrWindows)
+'		If marrWindowAutoStore(i) Then
+			Call twspSetOnWindow(marrWindows(i).nWID, marrWindows(i))
+'		End If
+	Next
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINPAutoRestoreWindowPosition")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINPReadIniFile(ByVal sFile As String)
+
+Dim	i As Integer,
+	sHash, sName, sSize As String
+
+OnError GoTo ErrorOccured
+
+	Redim marrWindows(7)
+	Redim marrWindowAutoStore(7)
+
+	sSize = GetScreenSize()
+
+	For i = 1 To Ubound(marrWindows)
+		Do Case i
+			Case 1
+				marrWindows(i).nWID	= WIN_MAPINFO
+				sName				= "MAPINFO"
+			Case 2
+				marrWindows(i).nWID 	= WIN_MAPBASIC
+				sName				= "MAPBASIC"
+			Case 3
+				marrWindows(i).nWID 	= WIN_MESSAGE
+				sName				= "MESSAGE"
+			Case 4
+				marrWindows(i).nWID 	= WIN_LEGEND
+				sName				= "LEGEND"
+			Case 5
+				marrWindows(i).nWID 	= WIN_INFO
+				sName				= "INFO"
+			Case 6
+				marrWindows(i).nWID 	= WIN_RULER
+				sName				= "RULER"
+			Case 7
+				marrWindows(i).nWID 	= WIN_STATISTICS
+				sName				= "STATISTICS"
+		End Case
+
+		sHash = CONFIGReadKey(sFile, "WINDOWPOSITION_" & sSize, sName)
+		If sHash = "" Then
+			marrWindows(i).sPaperUnits	= "cm"
+		Else
+			Call twspFromHash(sHash, marrWindows(i))
+		End If
+
+		marrWindowAutoStore(i) = STRINGNumberToLogical(CONFIGReadKey(sFile, "AUTOSTOREPOSITION", sName))
+	Next
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINPReadIniFile")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINPWriteIniFile(ByVal sFile As String)
+
+Dim	i As Integer,
+	sName, sSize As String
+
+OnError GoTo ErrorOccured
+
+	sSize = GetScreenSize()
+
+	Call DEBUGPrint("Screen size: " & sSize)
+	For i = 1 To Ubound(marrWindows)
+		Do Case i
+			Case 1
+				sName				= "MAPINFO"
+			Case 2
+				sName				= "MAPBASIC"
+			Case 3
+				sName				= "MESSAGE"
+			Case 4
+				sName				= "LEGEND"
+			Case 5
+				sName				= "INFO"
+			Case 6
+				sName				= "RULER"
+			Case 7
+				sName				= "STATISTICS"
+		End Case
+
+		Call CONFIGWriteKey(sFile, "WINDOWPOSITION_" & sSize, sName, twspToHash(marrWindows(i)))
+
+		Call CONFIGWriteKey(sFile, "AUTOSTOREPOSITION", sName, STRINGLogicalToNumber(marrWindowAutoStore(i)))
+	Next
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINPWriteIniFile")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes MapInfo
+'Parameters:
+'
+'**********************************************************************************************''
+Sub WINP_EndHandler
+
+OnError GoTo ErrorOccured
+
+	Call WINPAutoStoreWindowPosition
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "WINP_EndHandler")
+	Call ERRShow()
+
+End Sub
