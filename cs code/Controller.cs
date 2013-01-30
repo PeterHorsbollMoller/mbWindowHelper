@@ -104,10 +104,18 @@ namespace WindowHelper
                     }
                     else
                     {
-                        _winhelperDlg.SetActiveWindow(windowID);
-                        _winhelperDlg.AutolockWindow(windowID);
-                        _winhelperDlg.AddToOrUpdateInWindowLists(windowID, "", 0);
-                        _winhelperDlg.ZoomNextAndPreviousAddWindow(windowID);
+                        //For some reason the ID sent was 145 which didn't refer to any window in side Mi Pro
+                        //for now we just ignore ID below 1000
+                        if (windowID < 1000)
+                            //Do nothing
+                            return;
+                        else
+                        {
+                            _winhelperDlg.SetActiveWindow(windowID);
+                            _winhelperDlg.AutolockWindow(windowID);
+                            _winhelperDlg.AddToOrUpdateInWindowLists(windowID, "", 0);
+                            _winhelperDlg.ZoomNextAndPreviousAddWindow(windowID);
+                        }
                     }
                 }
             }
@@ -131,10 +139,18 @@ namespace WindowHelper
                     return;
                 else
                 {
-                    _winhelperDlg.ResetActiveWindow();
-                    _winhelperDlg.RemoveFromAllWindowsLists(windowID);
-                    _winhelperDlg.ZoomNextAndPreviousRemoveWindow(windowID);
-                }
+                    //For some reason the ID sent was 145 which didn't refer to any window in side Mi Pro
+                    //for now we just ignore ID below 1000
+                    if (windowID < 1000)
+                        //Do nothing
+                        return;
+                    else
+                    {
+                        _winhelperDlg.ResetActiveWindow();
+                        _winhelperDlg.RemoveFromAllWindowsLists(windowID);
+                        _winhelperDlg.ZoomNextAndPreviousRemoveWindow(windowID);
+                    }
+                    }
             }
             catch (Exception e)
             {
@@ -157,9 +173,17 @@ namespace WindowHelper
                     return;
                 else
                 {
-                    _winhelperDlg.ZoomNextAndPreviousAddExtent(windowID);
-                    _winhelperDlg.AddToOrUpdateInWindowLists(windowID, "", 0);
-                    _winhelperDlg.SetActiveWindow(windowID);
+                    //For some reason the ID sent was 145 which didn't refer to any window in side Mi Pro
+                    //for now we just ignore ID below 1000
+                    if (windowID < 1000)
+                        //Do nothing
+                        return;
+                    else 
+                        {
+                            _winhelperDlg.ZoomNextAndPreviousAddExtent(windowID);
+                            _winhelperDlg.AddToOrUpdateInWindowLists(windowID, "", 0);
+                            _winhelperDlg.SetActiveWindow(windowID);
+                        }
                 }
             }
             catch (Exception e)

@@ -83,6 +83,8 @@
 '2.0.8	06-12-2012 07:47:23	- Added the ability to open Layer Control and TableList windows on startup
 '						- Fixed an issue where storing the window positions didn't save the stored positions to the config file
 '2.0.9	13-12-2012 08:34:34	- Added missing call to GetResStr around a few strings in the TableHelper module
+'2.0.10	30-01-2013 09:00:30	- The Handlers did at certain occasions send a value of 145 which doesn't refer to any windows in Mi Pro.
+'						- these low values are now ignored in the Controller module (.NET)
 '*******************************************************************************
 
 '-------------------------------------
@@ -95,7 +97,7 @@ Include "Library\Defaults.def"
 Define xProgram 		"WindowHelper"
 Define xProgramMenu		"W&indowHelper"
 Define xToolbarName		"WindowHelper"
-Define xVersion 		"2.0.9"
+Define xVersion 		"2.0.10"
 Define xYear			"2012"
 Define xAddToMenuBar	FALSE
 

@@ -101,94 +101,97 @@ Dim	sType As String
 OnError GoTo ErrorOccured
 
 	Call WinHelpDlgWinClosed(nWID)
-	mnNumWindows	= NumWindows()
 
-	Do Case WindowInfo(nWID, WIN_INFO_TYPE)
-		Case WIN_MAPPER
-			sType	= "Mapper"
-		Case WIN_BROWSER
-			sType	= "Browser"
-		Case WIN_LAYOUT
-			sType	= "Layout"
-		Case WIN_GRAPH
-			sType	= "Graph"
-		Case WIN_3DMAP
-			sType	= "3DMap"
-		Case WIN_MAPBASIC
-			sType	= "MapBasic"
-		Case WIN_CART_LEGEND
-			sType	= "Cartographic Legend"
-			Call DEBUGPrint("Legends Map ID: " & LegendInfo(nWID, LEGEND_INFO_MAP_ID))
-			If LegendInfo(nWID, LEGEND_INFO_MAP_ID) = mnPreviousWID Then
-				'**Sorry but this type can not be stored
-				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored because the map has just been closed")
+	If nWID > 1000 Then
+		mnNumWindows	= NumWindows()
+
+		Do Case WindowInfo(nWID, WIN_INFO_TYPE)
+			Case WIN_MAPPER
+				sType	= "Mapper"
+			Case WIN_BROWSER
+				sType	= "Browser"
+			Case WIN_LAYOUT
+				sType	= "Layout"
+			Case WIN_GRAPH
+				sType	= "Graph"
+			Case WIN_3DMAP
+				sType	= "3DMap"
+			Case WIN_MAPBASIC
+				sType	= "MapBasic"
+			Case WIN_CART_LEGEND
+				sType	= "Cartographic Legend"
+				Call DEBUGPrint("Legends Map ID: " & LegendInfo(nWID, LEGEND_INFO_MAP_ID))
+				If LegendInfo(nWID, LEGEND_INFO_MAP_ID) = mnPreviousWID Then
+					'**Sorry but this type can not be stored
+					Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored because the map has just been closed")
+					Exit Sub
+				End If
+			Case WIN_LEGEND_DESIGNER
+				sType	= "Legend Designer"
+				Call DEBUGPrint("Legend Designers Map ID: " & LegendInfo(nWID, LEGEND_INFO_MAP_ID))
+				If LegendInfo(nWID, LEGEND_INFO_MAP_ID) = mnPreviousWID Then
+					'**Sorry but this type can not be stored
+					Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored because the map has just been closed")
+					Exit Sub
+				End If
+			Case WIN_BUTTONPAD
+				sType	= "Buttonpad"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
 				Exit Sub
-			End If
-		Case WIN_LEGEND_DESIGNER
-			sType	= "Legend Designer"
-			Call DEBUGPrint("Legend Designers Map ID: " & LegendInfo(nWID, LEGEND_INFO_MAP_ID))
-			If LegendInfo(nWID, LEGEND_INFO_MAP_ID) = mnPreviousWID Then
-				'**Sorry but this type can not be stored
-				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored because the map has just been closed")
+			Case WIN_TOOLBAR
+				sType	= "Toolbar"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
 				Exit Sub
-			End If
-		Case WIN_BUTTONPAD
-			sType	= "Buttonpad"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_TOOLBAR
-			sType	= "Toolbar"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_ADORNMENT
-			sType	= "Adornment"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_HELP
-			sType	= "Help"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_MESSAGE
-			sType	= "Message"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_RULER
-			sType	= "Ruler"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_INFO
-			sType	= "Info"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_LEGEND
-			sType	= "Legend"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_STATISTICS
-			sType	= "Statistics"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-		Case WIN_MAPINFO
-			sType	= "MapInfo"
-			'**Sorry but this type will not be stored
-			Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
-			Exit Sub
-	End Case
+			Case WIN_ADORNMENT
+				sType	= "Adornment"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+				Exit Sub
+			Case WIN_HELP
+				sType	= "Help"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+				Exit Sub
+			Case WIN_MESSAGE
+				sType	= "Message"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+				Exit Sub
+			Case WIN_RULER
+				sType	= "Ruler"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+				Exit Sub
+			Case WIN_INFO
+				sType	= "Info"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+				Exit Sub
+			Case WIN_LEGEND
+				sType	= "Legend"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+				Exit Sub
+			Case WIN_STATISTICS
+				sType	= "Statistics"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+				Exit Sub
+			Case WIN_MAPINFO
+				sType	= "MapInfo"
+				'**Sorry but this type will not be stored
+				Call DEBUGPrint(sType & " " & WindowInfo(nWID, WIN_INFO_NAME) & " could not be stored")
+				Exit Sub
+		End Case
 
-	Call DEBUGPrint("Closing window (" & sType & "): " & nWID & " " & WindowInfo(nWID, WIN_INFO_NAME))
-	Call WinHelpDlgAddClosedWindow(mnMIWnd, nWID, WindowInfo(nWID, WIN_INFO_NAME), WindowInfo(nWID, WIN_INFO_TYPE))
-	'WindowInfo(nWID, WIN_INFO_CLONEWINDOW)
+		Call DEBUGPrint("Closing window (" & sType & "): " & nWID & " " & WindowInfo(nWID, WIN_INFO_NAME))
+		Call WinHelpDlgAddClosedWindow(mnMIWnd, nWID, WindowInfo(nWID, WIN_INFO_NAME), WindowInfo(nWID, WIN_INFO_TYPE))
+		'WindowInfo(nWID, WIN_INFO_CLONEWINDOW)
 
-	mnPreviousWID = nWID
+		mnPreviousWID = nWID
+	End If
 
 	Exit Sub
 '-------------------------

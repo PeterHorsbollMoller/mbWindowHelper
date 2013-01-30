@@ -1795,14 +1795,22 @@ namespace WindowHelper
         //-----------------------------------------------------------------
         public void ZoomNextAndPreviousAddExtent(int windowID)
         {
-            Windows.Window mapWindow = new Windows.Window(windowID);
-            if (mapWindow.Type != Windows.Window.WindowType.Mapper)
-                return;
-
-            int index = _mapWindowExtents.FindWindow(mapWindow);
-            if (index >= 0)
+            try
             {
-                int extentIndex = _mapWindowExtents[index].MapExtentList.AddExtent(mapWindow);
+
+                Windows.Window mapWindow = new Windows.Window(windowID);
+                if (mapWindow.Type != Windows.Window.WindowType.Mapper)
+                    return;
+
+                int index = _mapWindowExtents.FindWindow(mapWindow);
+                if (index >= 0)
+                {
+                    int extentIndex = _mapWindowExtents[index].MapExtentList.AddExtent(mapWindow);
+                }
+            }
+            catch (Exception e)
+            {
+                WindowHelper.InteropHelper.PrintMessage(string.Format("{0} Exception caught.", e));
             }
         }
 
