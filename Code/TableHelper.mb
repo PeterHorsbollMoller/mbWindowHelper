@@ -208,9 +208,19 @@ Dim	nMID, nLayerID As Integer,
 
 	nMID		= LayerControlSelectionInfo(1, LC_SEL_INFO_MAPWIN_ID)
 	nLayerID	= LayerControlSelectionInfo(1, LC_SEL_INFO_LAYER_ID)
-	sTab 	= LayerInfo(nMID, nLayerID, LAYER_INFO_NAME)
 
-	Close Table sTab Interactive
+	Do Case LayerInfo(nMID, nLayerID, LAYER_INFO_TYPE)
+		Case LAYER_INFO_TYPE_COSMETIC
+			Exit Sub
+		Case LAYER_INFO_TYPE_THEMATIC
+			Remove Map
+				Window nMID
+				Layer nLayerID
+				Interactive
+		Case Else
+			sTab 	= LayerInfo(nMID, nLayerID, LAYER_INFO_NAME)
+			Close Table sTab Interactive
+	End Case
 
 	Exit Sub
 '-------------------------

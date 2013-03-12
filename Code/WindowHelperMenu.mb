@@ -85,6 +85,10 @@
 '2.0.9	13-12-2012 08:34:34	- Added missing call to GetResStr around a few strings in the TableHelper module
 '2.0.10	30-01-2013 09:00:30	- The Handlers did at certain occasions send a value of 145 which doesn't refer to any windows in Mi Pro.
 '						- these low values are now ignored in the Controller module (.NET)
+'2.0.11	12-03-2013 20:51:25	- Close table from the Layer Control crashes the tools when used on a thematic layer.
+'							Has been changed to handle the cosmmetic layer and a cosmetic layer differently.
+'							- Cosmetic layer is ignored.
+'							- Thematic layer is removed from the map window
 '*******************************************************************************
 
 '-------------------------------------
@@ -97,8 +101,8 @@ Include "Library\Defaults.def"
 Define xProgram 		"WindowHelper"
 Define xProgramMenu		"W&indowHelper"
 Define xToolbarName		"WindowHelper"
-Define xVersion 		"2.0.10"
-Define xYear			"2012"
+Define xVersion 		"2.0.11"
+Define xYear			"2013"
 Define xAddToMenuBar	FALSE
 
 Define FILE_INI			GetFolderPath$(FOLDER_MI_PREFERENCE) & xProgram & ".ini"
