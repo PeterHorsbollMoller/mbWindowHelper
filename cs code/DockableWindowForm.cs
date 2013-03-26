@@ -279,7 +279,7 @@ namespace WindowHelper
         public void DockWindowChange()
         {
             //store the docking related info in xml file
-            WriteDockWindowStateToFile();
+            //WriteDockWindowStateToFile();
         }
 
         /// <summary>

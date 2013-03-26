@@ -112,7 +112,7 @@ namespace WindowHelper
 
             // Set up the delays for the ToolTip.
             toolTip1.AutoPopDelay = 5000;
-            toolTip1.InitialDelay = 1000;
+            toolTip1.InitialDelay = 500;
             toolTip1.ReshowDelay = 500;
             // Force the ToolTip text to be displayed whether or not the form is active.
             toolTip1.ShowAlways = true;
@@ -216,7 +216,7 @@ namespace WindowHelper
         //-----------------------------------------------------------------
         private void UpdateWindowsButtons()
         {
-            AddTooltips();
+            //AddTooltips();
 
             if (_activeWindow == null)
             {
@@ -419,7 +419,7 @@ namespace WindowHelper
         public void DockWindowChange()
         {
             //store the docking related info in xml file
-            WriteDockWindowStateToFile();
+            //WriteDockWindowStateToFile();
         }
 
         /// <summary>
@@ -529,6 +529,7 @@ namespace WindowHelper
             _dockWindowState.DockState.CX = 300;
             _dockWindowState.DockState.CY = 225;
             _dockWindowState.Visible = true;
+
             _dockWindowState.DockState.Pinned = false;
         }
 
@@ -560,6 +561,7 @@ namespace WindowHelper
                     _dockWindowState.DockState.Position,
                     _dockWindowState.DockState.CX,
                     _dockWindowState.DockState.CY);
+
                 if (_dockWindowState.DockState.Pinned)
                 {
                     _dockWindow.Pin();
@@ -1221,18 +1223,22 @@ namespace WindowHelper
                 _checkBoxAutolockWindows.Checked = false;
                 _autolockWindowEnabled = false;
             }
+
+            UpdateWindowsButtons();
         }
 
         //-----------------------------------------------------------------
         private void _buttonLockWindow_Click(object sender, EventArgs e)
         {
               _activeWindow.SystemMenuClose = false;
+              UpdateWindowsButtons();
         }
 
         //-----------------------------------------------------------------
         private void _buttonUnlockWindow_Click(object sender, EventArgs e)
         {
-             _activeWindow.SystemMenuClose = false;
+             _activeWindow.SystemMenuClose = true;
+             UpdateWindowsButtons();
         }
 
         //-----------------------------------------------------------------

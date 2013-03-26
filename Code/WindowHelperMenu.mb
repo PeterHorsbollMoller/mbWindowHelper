@@ -89,6 +89,11 @@
 '							Has been changed to handle the cosmmetic layer and a cosmetic layer differently.
 '							- Cosmetic layer is ignored.
 '							- Thematic layer is removed from the map window
+'2.0.12	26-03-2013 10:55:22	- The speed of showing the tooltips in the WindowHelper window has been improved
+'						- The Size of the WindowHelper window is now restored correctly if the window is set to 'Autohide'
+'						- The assembly miadm.dll has been renamed to miadm10.5.0.202.dll to remove conflicts with a newer version of this file
+'						- the unlock window button is now working correctly again
+'						- lock, unlock and autolock windows now updates the buttons state as well
 '*******************************************************************************
 
 '-------------------------------------
@@ -101,7 +106,7 @@ Include "Library\Defaults.def"
 Define xProgram 		"WindowHelper"
 Define xProgramMenu		"W&indowHelper"
 Define xToolbarName		"WindowHelper"
-Define xVersion 		"2.0.11"
+Define xVersion 		"2.0.12"
 Define xYear			"2013"
 Define xAddToMenuBar	FALSE
 

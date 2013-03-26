@@ -54,9 +54,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="miadm, Version=10.5.0.202, Culture=neutral, PublicKeyToken=1c8d81d2ee78b75d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\miadm.dll</HintPath>
+    <Reference Include="miadm10.5.0.202">
+      <HintPath>.\miadm10.5.0.202.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
