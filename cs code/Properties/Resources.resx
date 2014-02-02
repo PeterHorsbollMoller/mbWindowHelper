@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ASK_LOCATE_TAB_FILE_OR_GRID_FILE" xml:space="preserve">
     <value>Do you want to find the tab file or the grid file?</value>
@@ -150,8 +150,17 @@
   <data name="DLG_MODIFY_WINDOW" xml:space="preserve">
     <value>Modify Window</value>
   </data>
+  <data name="DLG_TTL_CREATE_MAP_EXTENT" xml:space="preserve">
+    <value>Create Map Extent</value>
+  </data>
   <data name="DLG_TTL_RESTORE_WINDOWS" xml:space="preserve">
     <value>Restore windows</value>
+  </data>
+  <data name="DLG_TXT_CREATE_EXTENT_OF" xml:space="preserve">
+    <value>Create Map Extent of</value>
+  </data>
+  <data name="DLG_TXT_EXTENT_STYLE" xml:space="preserve">
+    <value>Map Extent Style</value>
   </data>
   <data name="DLG_TXT_PICK_WINDOW_TO_RESTORE" xml:space="preserve">
     <value>Pick window to restore</value>
@@ -164,6 +173,9 @@
   </data>
   <data name="ERR_INVALID_XML" xml:space="preserve">
     <value>The XML is invalid!</value>
+  </data>
+  <data name="ERR_NO_MAP_WIN_OPEN" xml:space="preserve">
+    <value>The must be at least one map window open!</value>
   </data>
   <data name="ERR_NO_WINDOWS_TO_RESTORE" xml:space="preserve">
     <value>There are no windows to restore!</value>
@@ -222,6 +234,9 @@
   <data name="LST_WINDOWS_LAYOUTS" xml:space="preserve">
     <value>Layout Windows</value>
   </data>
+  <data name="LST_WINDOWS_LEGENDS" xml:space="preserve">
+    <value>Legend Designer Windows</value>
+  </data>
   <data name="LST_WINDOWS_MAPS" xml:space="preserve">
     <value>Map Windows</value>
   </data>
@@ -233,6 +248,9 @@
   </data>
   <data name="MNU_CLOSE_TABLE" xml:space="preserve">
     <value>Close Table</value>
+  </data>
+  <data name="MNU_CREATE_MAP_EXTENT" xml:space="preserve">
+    <value>Create Map Extent...</value>
   </data>
   <data name="MNU_END_PROGRAM" xml:space="preserve">
     <value>&amp;End Program</value>
@@ -251,6 +269,9 @@
   </data>
   <data name="MNU_HLP_CLOSE_WINDOW" xml:space="preserve">
     <value>Close window</value>
+  </data>
+  <data name="MNU_HLP_CREATE_MAP_EXTENT" xml:space="preserve">
+    <value>Create a Map Extent into a map or table.</value>
   </data>
   <data name="MNU_HLP_DOCK_WINDOW" xml:space="preserve">
     <value>Make window dockable</value>
@@ -423,8 +444,14 @@
   <data name="STR_CLOSE_WINDOW" xml:space="preserve">
     <value>Close Window</value>
   </data>
+  <data name="STR_COSM_LAYER_IN" xml:space="preserve">
+    <value>Cosmetic layer in</value>
+  </data>
   <data name="STR_CREATE" xml:space="preserve">
     <value>Create</value>
+  </data>
+  <data name="STR_EDIT_LAYER_IN" xml:space="preserve">
+    <value>Editable Layer in</value>
   </data>
   <data name="STR_GRID_FILE" xml:space="preserve">
     <value>Grid File</value>
@@ -452,6 +479,9 @@
   </data>
   <data name="STR_RESTORE" xml:space="preserve">
     <value>Restore</value>
+  </data>
+  <data name="STR_TABLE" xml:space="preserve">
+    <value>Table</value>
   </data>
   <data name="STR_TAB_FILE" xml:space="preserve">
     <value>Tab File</value>

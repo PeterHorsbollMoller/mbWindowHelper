@@ -1,0 +1,96 @@
+'*******************************************************************************
+'** 	Created By Peter Horsbøll Møller, Pitney Bowes Software
+'** 	Program:
+'** 	Modul:
+'**
+'*******************************************************************************
+
+'-------------------------------------
+Include "Library\MapBasic.def"
+Include "Library\Icons.def"
+Include "Library\Menu.def"
+'**default constants...
+Include "Library\Defaults.def"
+
+'-------------------------------------
+Include "Library\CONFIGFILELib.def"
+Include "Library\DEBUGLib.def"
+Include "Library\ERRORLib.def"
+Include "Library\MAPPERLib.def"
+Include "Library\STYLELib.def"
+Include "Library\TABLELib.def"
+
+Include "MAPEXTCreate.def"
+Include "MAPEXTDCreateMapExtentDialog.def"
+
+Dim	msFileIni As String
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTSetIniFile(ByVal sFile As String)
+
+OnError GoTo ErrorOccured
+
+	msFileIni	= sFile
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTSetIniFile")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTCreateMenu
+
+Dim	oExtent As Object,
+	penExtent As Pen, brsExtent As Brush
+
+OnError GoTo ErrorOccured
+
+	penExtent	= STLText2Pen(CONFIGReadKey(msFileIni, "MAP EXTENT", "PEN"))
+	brsExtent	= STLText2Brush(CONFIGReadKey(msFileIni, "MAP EXTENT", "BRUSH"))
+	Call MAPEXTDSetExtentStyle(penExtent, brsExtent)
+
+	If NOT MAPEXTDCreateMapExtentDialog(MAPFrontMostWindow()) Then
+		Exit Sub
+	End If
+
+	Set Coordsys Window MAPEXTDGetExtentMapID()
+	oExtent	= MAPGetExtent(MAPEXTDGetExtentMapID())
+	penExtent	= MAPEXTDGetExtentPen()
+	brsExtent	= MAPEXTDGetExtentBrush()
+
+	Alter Object oExtent
+		Info OBJ_INFO_PEN, penExtent
+	Alter Object oExtent
+		Info OBJ_INFO_BRUSH, brsExtent
+
+	Do Case MAPEXTDGetSaveToType()
+		Case MAPEXT_SAVE_TO_COSMETIC_LAYER
+			Insert Into WindowInfo(MAPEXTDGetSaveToMapID(), WIN_INFO_TABLE)
+				(OBJ)
+				Values (oExtent)
+		Case MAPEXT_SAVE_TO_EDITABLE_LAYER, MAPEXT_SAVE_TO_TABLE
+			Insert Into MAPEXTDGetSaveToTableName()
+				(OBJ)
+				Values (oExtent)
+	End Case
+
+	Call CONFIGWriteKey(msFileIni, "MAP EXTENT", "PEN", STLPen2Text(penExtent))
+	Call CONFIGWriteKey(msFileIni, "MAP EXTENT", "BRUSH", STLBrush2Text(brsExtent))
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTCreateMenu")
+	Call ERRShow()
+
+End Sub
+

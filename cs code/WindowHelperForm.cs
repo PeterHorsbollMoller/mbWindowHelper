@@ -36,11 +36,13 @@ namespace WindowHelper
         private Windows.WindowList _mapperWindows = null;
         private Windows.WindowList _browserWindows = null;
         private Windows.WindowList _layoutWindows = null;
+        private Windows.WindowList _legendWindows = null;
 
         private Windows.ClosedWindowList _closedWindowsList = null;
         private Windows.ClosedWindowList _closedMapperWindows = null;
         private Windows.ClosedWindowList _closedBrowserWindows = null;
         private Windows.ClosedWindowList _closedLayoutWindows = null;
+        private Windows.ClosedWindowList _closedLegendWindows = null;
 
         private Windows.WindowList _specialWindows = null;
 
@@ -838,6 +840,12 @@ namespace WindowHelper
                             listUpdated = true;
                         }
                         break;
+                    case Windows.Window.WindowType.LegendDesigner:
+                        if (UpdateInWindowList(_legendWindows, window) == true)
+                        {
+                            listUpdated = true;
+                        }
+                        break;
                 }
             }
             return listUpdated;
@@ -861,6 +869,9 @@ namespace WindowHelper
                     case Windows.Window.WindowType.Layout:
                         _layoutWindows.Add(window);
                         break;
+                    case Windows.Window.WindowType.LegendDesigner:
+                        _legendWindows.Add(window);
+                        break;
                 }
             }
         }
@@ -878,6 +889,8 @@ namespace WindowHelper
                 _browserWindows = new WindowHelper.Windows.WindowList();
             if (_layoutWindows == null)
                 _layoutWindows = new WindowHelper.Windows.WindowList();
+            if (_legendWindows == null)
+                _legendWindows = new WindowHelper.Windows.WindowList();
 
             //Let's see if this window alread exists in the list of all windows
             int index = GetWindowIndex(_windowsList, window);
@@ -931,6 +944,7 @@ namespace WindowHelper
                 _mapperWindows.Clear();
                 _browserWindows.Clear();
                 _layoutWindows.Clear();
+                _legendWindows.Clear();
                 _windowsList.Clear();
             }
             else
@@ -939,6 +953,7 @@ namespace WindowHelper
                 _mapperWindows = new WindowHelper.Windows.WindowList();
                 _browserWindows = new WindowHelper.Windows.WindowList();
                 _layoutWindows = new WindowHelper.Windows.WindowList();
+                _legendWindows = new WindowHelper.Windows.WindowList();
             }
             Windows.Window window = null;
 
@@ -967,6 +982,9 @@ namespace WindowHelper
                     break;
                 case Windows.Window.WindowType.Layout:
                     RemoveFromWindowList(_layoutWindows, window);
+                    break;
+                case Windows.Window.WindowType.LegendDesigner:
+                    RemoveFromWindowList(_legendWindows, window);
                     break;
             }
 
@@ -1000,7 +1018,7 @@ namespace WindowHelper
             //Adding the main nodes to the tree
             if (_treeViewWindows.Nodes.Count == 0)
             {
-                for (int i = 0; i <= 3; i++)
+                for (int i = 0; i <= 4; i++)
                 {
                     newNode = new TreeNode();
 
@@ -1019,6 +1037,10 @@ namespace WindowHelper
                             newNode.Tag = _layoutWindows;
                             break;
                         case 3:
+                            nodeName = Controller.GetResItemStr("LST_WINDOWS_LEGENDS");
+                            newNode.Tag = _legendWindows;
+                            break;
+                        case 4:
                             nodeName = Controller.GetResItemStr("LST_WINDOWS_ALL");
                             newNode.Tag = _windowsList;
                             break;
@@ -1084,6 +1106,28 @@ namespace WindowHelper
             newNode.Nodes.Clear();
 
             foreach (Windows.Window window in _layoutWindows)
+            {
+                nodeNum++;
+                subNode = new TreeNode();
+                subNode.ImageIndex = 1;
+                subNode.SelectedImageIndex = 1;
+                subNode.Tag = window;
+                nodeName = string.Format("{0}", window.Title);
+                subNode.Text = nodeName;
+                subNode.Name = nodeName;
+                subNode.ToolTipText = nodeName;
+                newNode.Nodes.Add(subNode);
+                subNode = null;
+            }
+
+            newNode = null;
+
+            //Legend Designer Windows
+            nodeindex++;
+            newNode = _treeViewWindows.Nodes[nodeindex];
+            newNode.Nodes.Clear();
+
+            foreach (Windows.Window window in _legendWindows)
             {
                 nodeNum++;
                 subNode = new TreeNode();
@@ -1193,10 +1237,10 @@ namespace WindowHelper
             string name = window.Title;
             
             ModifyWindowForm dlgModifyWindow = new ModifyWindowForm();
-             dlgModifyWindow.Window = window;
-             dlgModifyWindow.ShowDialog();
+            dlgModifyWindow.Window = window;
+            dlgModifyWindow.ShowDialog();
 
-             if (name != window.Title)
+            if (name != window.Title)
                  RefreshWindowsList();
         }
 
@@ -1309,8 +1353,8 @@ namespace WindowHelper
                 _closedBrowserWindows = new WindowHelper.Windows.ClosedWindowList();
             if (_closedLayoutWindows == null)
                 _closedLayoutWindows = new WindowHelper.Windows.ClosedWindowList();
-            //if (_closedGraphWindows == null)
-            //    _closedGraphWindows = new WindowHelper.Windows.ClosedWindowList();
+            if (_closedLegendWindows == null)
+                _closedLegendWindows = new WindowHelper.Windows.ClosedWindowList();
 
             _closedWindowsList.Add(window);
 
@@ -1325,9 +1369,9 @@ namespace WindowHelper
                 case Windows.Window.WindowType.Layout:
                     _closedLayoutWindows.Add(window);
                     break;
-                //case Windows.Window.WindowType.Graph:
-                //    _closedGraphWindows.Add(window);
-                //    break;
+                case Windows.Window.WindowType.LegendDesigner:
+                    _closedLegendWindows.Add(window);
+                    break;
             }
 
             RefreshClosedWindowsList();
@@ -1344,7 +1388,7 @@ namespace WindowHelper
             //Adding the main nodes to the tree
             if (_treeViewClosedWindows.Nodes.Count == 0)
             {
-                for (int i = 0; i <= 3; i++)
+                for (int i = 0; i <= 4; i++)
                 {
                     newNode = new TreeNode();
 
@@ -1363,6 +1407,10 @@ namespace WindowHelper
                             newNode.Tag = _closedLayoutWindows;
                             break;
                         case 3:
+                            nodeName = Controller.GetResItemStr("LST_CLOSED_WINDOWS_LEGENDS"); ;
+                            newNode.Tag = _closedLegendWindows;
+                            break;
+                        case 4:
                             nodeName = Controller.GetResItemStr("LST_CLOSED_WINDOWS_ALL");
                             newNode.Tag = _closedWindowsList;
                             break;
@@ -1427,6 +1475,28 @@ namespace WindowHelper
             newNode.Nodes.Clear();
 
             foreach (Windows.ClosedWindow window in _closedLayoutWindows)
+            {
+                nodeNum++;
+                subNode = new TreeNode();
+                subNode.ImageIndex = 1;
+                subNode.SelectedImageIndex = 1;
+                subNode.Tag = window;
+                nodeName = string.Format("{0} {1}", window.ClosedAtTimeOfDay, window.Name);
+                subNode.Text = nodeName;
+                subNode.Name = nodeName;
+                subNode.ToolTipText = nodeName;
+                newNode.Nodes.Add(subNode);
+                subNode = null;
+            }
+
+            newNode = null;
+
+            //Layout Windows
+            nodeindex++;
+            newNode = _treeViewClosedWindows.Nodes[nodeindex];
+            newNode.Nodes.Clear();
+
+            foreach (Windows.ClosedWindow window in _closedLegendWindows)
             {
                 nodeNum++;
                 subNode = new TreeNode();

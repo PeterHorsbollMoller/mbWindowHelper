@@ -13,6 +13,8 @@
 '					- Sub tliRemoveSingleFromMetadata(...)
 '	14-02-2012 	- Please note that the T_DISPLAY_OVERRIDE and T_LABEL_OVERRIDE types are not working correctly
 '					MapBasic does not expose a way to figure out whether an override is active or not
+'	16-01-2013 	- I have now removed all references to T_DISPLAY_OVERRIDE and T_LABEL_OVERRIDE
+'					T_LAYER_INFO will not get or set override settings
 '**********************************************************************************************************************
 'Requires MapInfo Pro 10.0
 
@@ -25,8 +27,8 @@ Type T_LAYER_INFO
 	nLayerListID			As Integer
 	tlsLyrSettings			As T_LAYER_SETTINGS
 	tlbsLblSettings		As T_LABEL_SETTINGS
-	arrDisplayOverrides()	As T_DISPLAY_OVERRIDE
-	arrLabelOverrides()		As T_LABEL_OVERRIDE
+'	arrDisplayOverrides()	As T_DISPLAY_OVERRIDE
+'	arrLabelOverrides()		As T_LABEL_OVERRIDE
 End Type
 
 Declare Sub tliCopy(  tliFrom As T_LAYER_INFO	'Source T_LAYER_INFO

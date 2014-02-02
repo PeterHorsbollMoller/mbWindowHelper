@@ -2,6 +2,7 @@
 '	H I S T O R Y    O F    S T R I N G L I B
 '**********************************************************************************************************************
 '	18-01-2012 	- Added STRINGLogicalToText(...) As String
+'	11.03.2013	- Added STRINGContainsOnlyNumbers(...) As Logical
 '**********************************************************************************************************************
 'Requires MapInfo Pro 4.0
 
@@ -35,3 +36,5 @@ Declare Function STRINGGetValueBetweenChars(	  ByVal sText As String		'Text to e
 								, ByVal sStartChar As String	'Start character, could be "[", "(" or any character
 								, ByVal sEndChar As String	'End character, could be "]", ")" or any character
 								) As String				'returns the first text between the two characters
+Declare Function STRINGContainsOnlyNumbers(	ByVal sText As String	'the text to check
+									) As Logical			'return true if all characters int he text are numerical (0-9)

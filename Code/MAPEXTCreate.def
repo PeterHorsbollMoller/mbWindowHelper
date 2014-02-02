@@ -1,0 +1,2 @@
+Declare Sub MAPEXTSetIniFile(ByVal sFile As String)
+Declare Sub MAPEXTCreateMenu

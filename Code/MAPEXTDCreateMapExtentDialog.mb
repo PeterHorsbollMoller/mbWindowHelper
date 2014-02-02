@@ -1,0 +1,454 @@
+'*******************************************************************************
+'** 	Created By Peter Horsbøll Møller, Pitney Bowes Software
+'** 	Program:
+'** 	Modul:
+'**
+'*******************************************************************************
+
+'-------------------------------------
+Include "Library\MapBasic.def"
+Include "Library\Icons.def"
+Include "Library\Menu.def"
+'**default constants...
+Include "Library\Defaults.def"
+
+'-------------------------------------
+Include "Library\ARRAYLib.def"
+Include "Library\DEBUGLib.def"
+Include "Library\ERRORLib.def"
+Include "Library\MAPPERLib.def"
+Include "Library\TABLELib.def"
+
+Include "Resources.def"
+Include "MAPEXTDCreateMapExtentDialog.def"
+
+Define CTRL_LST_EXTENT_FROM_MAPS		100
+Define CTRL_LST_SAVE_TO_TYPES			200
+Define CTRL_LST_SAVE_TO_MAPS			300
+Define CTRL_LST_SAVE_TO_TABLES		400
+Define CTRL_BTN_OK					1000
+
+Declare Sub MAPEXTDHndlr_OnLoad
+Declare Sub MAPEXTDHndlr_ExtentMaps_Clicked
+Declare Sub MAPEXTDHndlr_SaveToType_Clicked
+Declare Sub MAPEXTDHndlr_SaveToMaps_Clicked
+Declare Sub MAPEXTDHndlr_SaveToTabs_Clicked
+Declare Sub MAPEXTDHndlr_OK_Clicked
+
+Dim	mnExtentMID, mnSaveToMID As Integer,
+	mnSaveToType As Integer,
+	marrWindowIDs() As Integer,
+	msSaveToTabName, marrTables(), marrWindowNames() As String,
+	mpenMapExtent As Pen,
+	mbrsMapExtent As Brush,
+	mbStylesInitialized As Logical
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'	:
+'Return value:
+'
+'**********************************************************************************************''
+Function MAPEXTDCreateMapExtentDialog(ByVal nMID As Integer) As Logical
+
+Dim	i, nWID, nPreselectExtentMap, nPreselectSaveToMap, nPreselectSaveToTab As Integer
+
+OnError GoTo ErrorOccured
+
+MAPEXTDCreateMapExtentDialog = FALSE
+
+	If NOT mbStylesInitialized Then
+		mpenMapExtent		= CurrentBorderPen()
+		mbrsMapExtent		= CurrentBrush()
+		mbStylesInitialized	= TRUE
+	End If
+
+	Redim marrWindowIDs(0)
+	Redim marrWindowNames(0)
+	For i = 1 To NumWindows()
+		nWID	= WindowID(i)
+		If WindowInfo(nWID, WIN_INFO_TYPE) = WIN_MAPPER Then
+
+			Call ARRAYAddValueString(marrWindowNames, WindowInfo(nWID, WIN_INFO_NAME))
+			Call ARRAYAddValueInteger(marrWindowIDs, nWID)
+
+			If nMID = nWID Then
+				nPreselectExtentMap = Ubound(marrWindowIDs)
+			End If
+			If mnSaveToMID = nWID Then
+				nPreselectSaveToMap = Ubound(marrWindowIDs)
+			End if
+		End If
+	Next
+	If Ubound(marrWindowIDs) = 0 Then
+		Note GetResItemStr("ERR_NO_MAP_WIN_OPEN")
+		Exit Function
+	End If
+	If nPreselectExtentMap = 0 Then
+		nPreselectExtentMap = 1
+	End If
+	If nPreselectSaveToMap = 0 Then
+		nPreselectSaveToMap = 1
+	End If
+
+	Redim marrTables(0)
+	If TABGetListOfNames(TAB_USE_ALL_MAPPABLE_BUT_IMAGES, marrTables) > 0 Then
+		nPreselectSaveToTab = ARRAYFindValueString(marrTables, msSaveToTabName)
+		If nPreselectSaveToTab = 0 Then
+			nPreselectSaveToTab = 1
+		End If
+	Else
+		nPreselectSaveToTab = 0
+	End If
+
+	If mnSaveToType = 0 Then
+		mnSaveToType = 1
+	End If
+
+	Dialog
+		Title GetResItemStr("DLG_TTL_CREATE_MAP_EXTENT")
+		Calling MAPEXTDHndlr_OnLoad
+
+		Control StaticText		Position 5,5		Width 250
+			Title GetResItemStr("DLG_TXT_CREATE_EXTENT_OF")
+		Control PopupMenu		Position 5,15		Width 250		ID CTRL_LST_EXTENT_FROM_MAPS
+			Calling MAPEXTDHndlr_ExtentMaps_Clicked
+			Title From Variable marrWindowNames
+			Value nPreselectExtentMap
+
+		Control StaticText		Position 5,30		Width 150
+			Title "Into"
+		Control RadioGroup		Position 15,40		Width 150		ID CTRL_LST_SAVE_TO_TYPES
+			Calling MAPEXTDHndlr_SaveToType_Clicked
+			Title GetResItemStr("STR_COSM_LAYER_IN") & ";" & GetResItemStr("STR_EDIT_LAYER_IN") & ";" & GetResItemStr("STR_TABLE")
+
+		Control StaticText		Position 180,30	Width 70
+			Title GetResItemStr("DLG_TXT_EXTENT_STYLE")
+		Control PenPicker		Position 180,40	Width 20	Height 20
+			Value mpenMapExtent
+			Into mpenMapExtent
+		Control BrushPicker		Position 205,40	Width 20	Height 20
+			Value mbrsMapExtent
+			Into mbrsMapExtent
+
+		Control PopupMenu		Position 5,85		Width 250		ID CTRL_LST_SAVE_TO_MAPS
+			Calling MAPEXTDHndlr_SaveToMaps_Clicked
+			Title From Variable marrWindowNames
+			Value nPreselectSaveToMap
+		Control PopupMenu		Position 5,85		Width 250		ID CTRL_LST_SAVE_TO_TABLES
+			Calling MAPEXTDHndlr_SaveToTabs_Clicked
+			Title From Variable marrTables
+			Value nPreselectSaveToTab
+
+		Control OKButton		Position 170,100		Width 40		ID CTRL_BTN_OK
+			Calling MAPEXTDHndlr_OK_Clicked
+		Control CancelButton	Position 215,100	Width 40
+
+	If not CommandInfo(CMD_INFO_DLG_OK) Then
+		Exit Function
+	End If
+
+MAPEXTDCreateMapExtentDialog = TRUE
+
+	Exit Function
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDCreateMapExtentDialog")
+	Call ERRShow()
+
+End Function
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTDHndlr_OnLoad
+
+OnError GoTo ErrorOccured
+
+	Call MAPEXTDHndlr_SaveToType_Clicked
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDHndlr_OnLoad")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTDHndlr_ExtentMaps_Clicked
+
+OnError GoTo ErrorOccured
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDHndlr_ExtentMaps_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTDHndlr_SaveToType_Clicked
+
+Dim	nType As Integer
+
+OnError GoTo ErrorOccured
+
+'	Print "Enabling OK"
+	Alter Control CTRL_BTN_OK Enable
+
+	nType = ReadControlValue(CTRL_LST_SAVE_TO_TYPES)
+	Do Case nType
+		Case MAPEXT_SAVE_TO_COSMETIC_LAYER
+			Alter Control CTRL_LST_SAVE_TO_MAPS	Show
+			Alter Control CTRL_LST_SAVE_TO_TABLES	Hide
+
+			Call MAPEXTDHndlr_SaveToMaps_Clicked
+
+		Case MAPEXT_SAVE_TO_EDITABLE_LAYER
+			Alter Control CTRL_LST_SAVE_TO_MAPS	Show
+			Alter Control CTRL_LST_SAVE_TO_TABLES	Hide
+
+			Call MAPEXTDHndlr_SaveToMaps_Clicked
+
+		Case MAPEXT_SAVE_TO_TABLE
+			Alter Control CTRL_LST_SAVE_TO_MAPS	Hide
+			Alter Control CTRL_LST_SAVE_TO_TABLES	Show
+
+			Call MAPEXTDHndlr_SaveToTabs_Clicked
+
+	End Case
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDHndlr_SaveToType_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTDHndlr_SaveToMaps_Clicked
+
+Dim	nMID As Integer
+
+OnError GoTo ErrorOccured
+
+	nMID = marrWindowIDs(ReadControlValue(CTRL_LST_SAVE_TO_MAPS))
+
+	If ReadControlValue(CTRL_LST_SAVE_TO_TYPES) = MAPEXT_SAVE_TO_EDITABLE_LAYER Then
+		If MAPGetEditLayerName(nMID) = "" Then
+'			Print "Disabling OK"
+			Alter Control CTRL_BTN_OK Disable
+		Else
+'			Print "Enabling OK"
+			Alter Control CTRL_BTN_OK Enable
+		End If
+	End If
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDHndlr_SaveToMaps_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTDHndlr_SaveToTabs_Clicked
+
+OnError GoTo ErrorOccured
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDHndlr_SaveToTabs_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTDHndlr_OK_Clicked
+
+OnError GoTo ErrorOccured
+
+	mnExtentMID	= marrWindowIDs(ReadControlValue(CTRL_LST_EXTENT_FROM_MAPS))
+	mnSaveToType	= ReadControlValue(CTRL_LST_SAVE_TO_TYPES)
+
+	Do Case mnSaveToType
+		Case MAPEXT_SAVE_TO_COSMETIC_LAYER
+			mnSaveToMID 		= marrWindowIDs(ReadControlValue(CTRL_LST_SAVE_TO_MAPS))
+		Case MAPEXT_SAVE_TO_EDITABLE_LAYER
+			mnSaveToMID 		= marrWindowIDs(ReadControlValue(CTRL_LST_SAVE_TO_MAPS))
+			msSaveToTabName	= MAPGetEditLayerName(mnSaveToMID)
+		Case MAPEXT_SAVE_TO_TABLE
+			msSaveToTabName	= marrTables(ReadControlValue(CTRL_LST_SAVE_TO_TABLES))
+	End Case
+
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDHndlr_OK_Clicked")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Function MAPEXTDGetExtentMapID() As Integer
+
+OnError GoTo ErrorOccured
+
+	MAPEXTDGetExtentMapID	= mnExtentMID
+	Exit Function
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDGetExtentMapID")
+	Call ERRShow()
+
+End Function
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'	:
+'Return value:
+'
+'**********************************************************************************************''
+Function MAPEXTDGetSaveToMapID() As Integer
+
+OnError GoTo ErrorOccured
+
+	MAPEXTDGetSaveToMapID	= mnSaveToMID
+	Exit Function
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDGetSaveToMapID")
+	Call ERRShow()
+
+End Function
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'	:
+'Return value:
+'
+'**********************************************************************************************''
+Function MAPEXTDGetSaveToType() As Integer
+
+OnError GoTo ErrorOccured
+
+	MAPEXTDGetSaveToType	= mnSaveToType
+	Exit Function
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDGetSaveToType")
+	Call ERRShow()
+
+End Function
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'	:
+'Return value:
+'
+'**********************************************************************************************''
+Function MAPEXTDGetSaveToTableName() As String
+
+OnError GoTo ErrorOccured
+
+	MAPEXTDGetSaveToTableName	= msSaveToTabName
+	Exit Function
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDGetSaveToTableName")
+	Call ERRShow()
+
+End Function
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'
+'**********************************************************************************************''
+Sub MAPEXTDSetExtentStyle(ByVal penExtent As Pen, ByVal brsExtent As Brush)
+
+OnError GoTo ErrorOccured
+
+	mpenMapExtent		= penExtent
+	mbrsMapExtent		= brsExtent
+	mbStylesInitialized	= TRUE
+	Exit Sub
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDSetExtentStyle")
+	Call ERRShow()
+
+End Sub
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'	:
+'Return value:
+'
+'**********************************************************************************************''
+Function MAPEXTDGetExtentPen() As Pen
+
+OnError GoTo ErrorOccured
+
+	MAPEXTDGetExtentPen = mpenMapExtent
+	Exit Function
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDGetExtentPen")
+	Call ERRShow()
+
+End Function
+
+'**********************************************************************************************''
+'Created by Peter Horsbøll Møller, Pitney Bowes Software
+'Parameters:
+'	:
+'Return value:
+'
+'**********************************************************************************************''
+Function MAPEXTDGetExtentBrush() As Pen
+
+OnError GoTo ErrorOccured
+
+	MAPEXTDGetExtentBrush = mbrsMapExtent
+	Exit Function
+'-------------------------
+ErrorOccured:
+	Call ERRCreate(Err(), Error$(), "MAPEXTDGetExtentBrush")
+	Call ERRShow()
+
+End Function

@@ -16,6 +16,10 @@
 '					- Function EXCELIsRunning() As Logical
 '					- Extra information added to the error handlers
 '					- Function EXCELIsChannelToSheetValid() As Logical
+'	07-06-2013	Added:
+'					- Function EXCELDDEReadValue(...) As String
+'	10-01-2014 	Changed:
+'					- EXCELDDECloseChannel: If it fails because the channel isn't open, the error is ignored
 '**********************************************************************************************************************************************
 
 '**Requires MapInfo Pro 9.5
@@ -48,6 +52,10 @@ Declare Sub EXCELDDEInsertValue(	  ByVal nChannel As Integer	'The Channel to use
 							, ByVal sColumn As String	'The Column to insert the value into
 							, ByVal sValue As String		'The value to insert into the cell
 							)
+Declare Function EXCELDDEReadValue(  ByVal nChannel As Integer	'The Channel to use
+							, ByVal sRow As String		'The Row to read the value from
+							, ByVal sColumn As String	'The Column to read the value from
+							) As String				'returns the value read from the cell
 Declare Sub EXCELDDECommitWork(	  ByVal sFile As String		'The file to commit changes in
 							)
 Declare Sub EXCELDDEExecuteMacro(	  ByVal sFile As String		'The file to run the macro within

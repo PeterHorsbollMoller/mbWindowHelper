@@ -6,6 +6,8 @@
 '					- Function DATEGetDateAsYYYYMMDD() As String
 '11-04-2012 15:08:06	Peter Møller added
 '					- Function DATEGetAgeInYears(...) As Integer
+'03-06-2013			Peter Møller Added
+'					- Function DATEGetTimeAsHHMMSS()  As String
 '*******************************************************************************
 
 
@@ -39,6 +41,10 @@ Declare Function DATEGetDateAsDDMMYYYY(	  ByVal dDate As Date		'Date variable to
 Declare Function DATEGetDateAsYYYYMMDD(	  ByVal dDate As Date		'Date variable to format
 								, ByVal sSeparator As String	'Separator to use to devide the elements
 								) As String				'String in this form YYYY-MM-DD where "-" is the separator
+
+Declare Function DATEGetTimeAsHHMMSS(	  ByVal tTime As Time		'Time variable to format
+								, ByVal sSeparator As String	'Separator to use to devide the elements
+								) As String				'String in this form HH:MM:SS where ":" is the separator
 
 Declare Function DATEGetAgeInYears(	ByVal dBirthDate As Date		'Date of Birth or creation
 							) As Integer					'Full number of years since birth

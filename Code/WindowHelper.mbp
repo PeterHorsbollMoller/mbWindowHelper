@@ -1,12 +1,15 @@
 [LINK]
 Application=..\WindowHelper.mbx
-Module=Library\ProgramInfo.mbo
+Module=Library\ARRAYLib.mbo
 Module=Library\CONFIGFileLib.mbo
 Module=Library\DEBUGLib.mbo
 Module=Library\ERRORLib.mbo
 Module=Library\FILELib.mbo
+Module=Library\MAPPERLib.mbo
+Module=Library\ProgramInfo.mbo
 Module=Library\STRINGLib.mbo
 Module=Library\SYSTEMLib.mbo
+Module=Library\STYLELib.mbo
 Module=Library\TABLELib.mbo
 Module=Library\TOOLBARLib.mbo
 Module=Library\Types\T_MI_POINT.mbo
@@ -19,3 +22,5 @@ Module=WindowHelper.mbo
 Module=WindowPosition.mbo
 Module=WindowShow.mbo
 Module=WindowHelperDialog.mbo
+Module=MAPEXTCreate.mbo
+Module=MAPEXTDCreateMapExtentDialog.mbo

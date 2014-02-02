@@ -94,6 +94,7 @@
 '						- The assembly miadm.dll has been renamed to miadm10.5.0.202.dll to remove conflicts with a newer version of this file
 '						- the unlock window button is now working correctly again
 '						- lock, unlock and autolock windows now updates the buttons state as well
+'2.1.0	31-01-2014 14:42:24	- Implemented a tool for creating map extents into cosmetic layer or other tables
 '*******************************************************************************
 
 '-------------------------------------
@@ -106,8 +107,8 @@ Include "Library\Defaults.def"
 Define xProgram 		"WindowHelper"
 Define xProgramMenu		"W&indowHelper"
 Define xToolbarName		"WindowHelper"
-Define xVersion 		"2.0.12"
-Define xYear			"2013"
+Define xVersion 		"2.1.0"
+Define xYear			"2014"
 Define xAddToMenuBar	FALSE
 
 Define FILE_INI			GetFolderPath$(FOLDER_MI_PREFERENCE) & xProgram & ".ini"
@@ -134,6 +135,7 @@ Include "WindowHelper.def"
 Include "WindowPosition.def"
 Include "WindowShow.def"
 Include "WindowHelperDialog.def"
+Include "MAPEXTCreate.def"
 
 Include "Resources.def"
 
@@ -182,6 +184,7 @@ OnError GoTo ErrorOccured
 
 	'***Initializing BaseWindows module
 	Call BWINSetIniFile(FILE_INI)
+	Call MAPEXTSetIniFile(FILE_INI)
 
 	'***Reading configuration file
 	Call MENUReadIniFile
@@ -224,6 +227,10 @@ OnError GoTo ErrorOccured
 			HelpMsg GetResItemStr("MNU_HLP_SAVE_WINDOW_TO_WOR")			'"Saves the active window to a workspace without the 'Open Table ...' statements"
 			Calling MENUSaveWindowToWorkspace,
 		"(-",
+		GetResItemStr("MNU_CREATE_MAP_EXTENT")
+			HelpMsg GetResItemStr("MNU_HLP_CREATE_MAP_EXTENT")
+			Calling MAPEXTCreateMenu,
+		"(-",
 		GetResItemStr("MNU_SHOW_WINDOW") As GetResItemStr("MNU_SHOW_WINDOW"),
 		GetResItemStr("MNU_RESTORE_WINDOWS_NOW")						'"Restore window positions now"
 			HelpMsg GetResItemStr("MNU_HLP_RESTORE_WINDOWS_NOW")			'"Restore window positions to the saved state"
@@ -251,6 +258,12 @@ OnError GoTo ErrorOccured
 			Calling PRGILaunchHelpFile,
 		GetResItemStr("MNU_END_PROGRAM")
 			Calling EndProgram
+
+	'**Adding menu item to the Mapper window rightclick menu
+	Alter Menu ID M_SHORTCUT_MAPPER add
+		GetResItemStr("MNU_CREATE_MAP_EXTENT")
+			HelpMsg GetResItemStr("MNU_HLP_CREATE_MAP_EXTENT")
+			Calling MAPEXTCreateMenu
 
 	'**Adding menu item to the Layout window rightclick menu
 	Alter Menu ID M_SHORTCUT_LAYOUT add

@@ -1,0 +1,13 @@
+Define 	MAPEXT_SAVE_TO_COSMETIC_LAYER		1
+Define 	MAPEXT_SAVE_TO_EDITABLE_LAYER		2
+Define 	MAPEXT_SAVE_TO_TABLE			3
+
+Declare Function MAPEXTDCreateMapExtentDialog(ByVal nMID As Integer) As Logical
+Declare Function MAPEXTDGetExtentMapID() As Integer
+Declare Function MAPEXTDGetSaveToMapID() As Integer
+Declare Function MAPEXTDGetSaveToType() As Integer
+Declare Function MAPEXTDGetSaveToTableName() As String
+
+Declare Sub MAPEXTDSetExtentStyle(ByVal penExtent As Pen, ByVal brsExtent As Brush)
+Declare Function MAPEXTDGetExtentPen() As Pen
+Declare Function MAPEXTDGetExtentBrush() As Pen
